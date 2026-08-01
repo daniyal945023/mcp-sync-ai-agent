@@ -1,8 +1,13 @@
 import os
 import requests
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+current_dir = Path(__file__).resolve().parent
+parent_dir = current_dir.parent
+env_path = parent_dir / ".env"
+
+load_dotenv(dotenv_path=env_path)
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO = os.environ.get("GITHUB_REPO")
