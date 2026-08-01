@@ -1,6 +1,7 @@
 from fastmcp import FastMCP
 import tools_github as gh
 import tools_slack as slack
+import tools_notion as notion
 
 mcp = FastMCP("Server Ops MCP")
 
@@ -23,6 +24,16 @@ def post_slack_message(text: str) -> dict:
 def read_slack_messages(limit: int = 10) -> list[dict]: 
     """Read the most recent messages from the team's Slack channel."""
     return slack.read_recent_messages(limit)
+
+@mcp.tool()
+def query_notion_tickets(status_filter: str | None = None) -> list[dict]:
+    """Query the Notion tracker. Optionally filter by status (e.g. 'Not started', 'In progress', 'Done')."""
+    return notion.query_database(status_filter)
+
+@mcp.tool()
+def create_notion_ticket(name: str, status: str = "Not Started", priority: str = "Normal"):
+    """Create a new ticket in the Notion tracker."""
+    return notion.create_page(name,status,priority)
 
 
 if __name__ == "__main__":
