@@ -5,7 +5,6 @@ from langchain_groq import ChatGroq
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, MessagesState, START #MessagesState is prebuilt state with a schema
 from langgraph.prebuilt import ToolNode, tools_condition  #ToolNode is prebuilt,eliminating the need to write tool calling function
-from langchain.chat_models import init_chat_model
 from langchain_core.messages import SystemMessage
 from mcp_client import get_tools, get_escalation_runbook #mcp server tools and resource can now be used as langchain tools thanks to mcp client,which was the bridge between this langgraph agent and mcp server
 
@@ -42,7 +41,7 @@ Always explain briefly what action you took and why."""
     builder.add_node("agent", call_agent_node)
     builder.add_node("tools", ToolNode(tools))
     builder.add_edge(START, "agent")
-    builder.add_conditional_edge("agent", tools_condition) #if agent makes tool call -> tools node, else END with final response(e.g. see the GitHub issues, then decide to post to Slack). this loop is what makes it agentic rather than a single request/response
+    builder.add_conditional_edges("agent", tools_condition) #if agent makes tool call -> tools node, else END with final response(e.g. see the GitHub issues, then decide to post to Slack). this loop is what makes it agentic rather than a single request/response
     builder.add_edge("tools","agent")
 
     return builder.compile()

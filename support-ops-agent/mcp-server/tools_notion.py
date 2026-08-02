@@ -2,13 +2,13 @@ import os
 import requests
 from pathlib import Path
 from dotenv import load_dotenv
-
+import sys
 current_dir = Path(__file__).resolve().parent
 parent_dir = current_dir.parent
 env_path = parent_dir / ".env"
 
 load_dotenv(dotenv_path=env_path)
-#print("DATABASE ID:", repr(os.environ.get("NOTION_DATABASE_ID")))
+
 
 NOTION_TOKEN = os.environ.get("NOTION_TOKEN")
 NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID")
@@ -39,7 +39,7 @@ def query_database(status_filter: str | None = None) -> list[dict]:
 
     resp = requests.post(url, headers=HEADERS, json=payload)
     if resp.status_code != 200:
-        print("NOTION ERROR:", resp.status_code, resp.json())
+        print("NOTION ERROR:", resp.status_code, resp.json(), file=sys.stderr)
     resp.raise_for_status()
     results = resp.json()["results"]
 
