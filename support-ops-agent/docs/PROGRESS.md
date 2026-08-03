@@ -25,5 +25,17 @@
   pinned mcp<2.0. Also hit with MultiServerMCPClient init issue — 
   fixed by [changing config of MultiServerMCPClient initialization, from ops->command: python to ops->command: MCP_SERVER_PYTHON]
 
-## Milestone 3: FastAPI Gateway — NOT STARTED
+## Milestone 3: FastAPI Gateway — COMPLETE
+- [x] /health and /chat/stream endpoints
+- [x] SSE streaming via astream_events (v2) — tokens, tool_start/tool_end, done
+- [x] Postgres-backed checkpointing (AsyncPostgresSaver) via Docker
+- [x] CORS configured for localhost:3000
+- [x] Fixed: agent was taking proactive escalation actions on read-only queries — 
+      tightened system prompt to require explicit user intent or clear trigger match
+- Note: backend/venv must mirror agent/venv's full dependency set, since 
+  backend imports agent/graph.py directly across the folder boundary. 
+  Stretch goal: convert agent/ into an installable local package.
+
+  
+
 ## Milestone 4: Next.js Frontend — NOT STARTED
