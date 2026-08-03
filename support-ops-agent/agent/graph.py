@@ -6,6 +6,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, MessagesState, START #MessagesState is prebuilt state with a schema
 from langgraph.prebuilt import ToolNode, tools_condition  #ToolNode is prebuilt,eliminating the need to write tool calling function
 from langchain_core.messages import SystemMessage
+from langgraph.checkpoint.memory import InMemorySaver
 from mcp_client import get_tools, get_escalation_runbook #mcp server tools and resource can now be used as langchain tools thanks to mcp client,which was the bridge between this langgraph agent and mcp server
 
 current_dir = Path(__file__).resolve().parent
@@ -30,6 +31,10 @@ Follow this escalation policy when deciding whether to notify the team:
 
 {escalation_runbook}
 
+Critical rule: when a message references data from a previous tool call (like an 
+issue number), you must use the ACTUAL value returned by that tool — never output 
+placeholder text like <number> or <issue_number> literally.
+
 Always explain briefly what action you took and why."""
 
     def call_agent_node(state: MessagesState):
@@ -44,6 +49,8 @@ Always explain briefly what action you took and why."""
     builder.add_conditional_edges("agent", tools_condition) #if agent makes tool call -> tools node, else END with final response(e.g. see the GitHub issues, then decide to post to Slack). this loop is what makes it agentic rather than a single request/response
     builder.add_edge("tools","agent")
 
-    return builder.compile()
+    checkpointer = InMemorySaver()
+
+    return builder.compile(checkpointer=checkpointer)
 
 

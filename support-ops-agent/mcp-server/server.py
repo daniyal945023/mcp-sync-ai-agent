@@ -54,8 +54,15 @@ def escalation_runbook() -> str:
 - Questions answerable from the knowledge base
 - Feature requests (log as GitHub issue instead, no Slack ping needed)
 
-## Escalation format
-Post to Slack: "[ESCALATION] <summary> — see GitHub issue #<number>"
+## Escalation procedure (follow in order)
+1. Call create_github_issue first. Wait for its result.
+2. Take the exact "number" value returned by that tool call.
+3. Call post_slack_message with the text formatted EXACTLY as:
+   "[ESCALATION] <one-line summary> — see GitHub issue #<the real number from step 2>"
+
+IMPORTANT: Never write the literal characters "<issue_number>" or "<number>" in 
+the Slack message. Those are placeholder names for you to explain the format — 
+you must substitute the actual integer returned by create_github_issue.
 """
 
 #mcp prompt is ui-based slash command and user can click it, It doesn't run logic itself,rather it returns a structured message that pre-fills how the agent should approach a task.( a detailed user prompt)

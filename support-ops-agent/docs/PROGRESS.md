@@ -9,13 +9,21 @@
 - [x] Add one @mcp.resource() (e.g. Notion schema or runbook)
 - [x] Add one @mcp.prompt() (e.g. triage_issue template)
 
+
 ## Milestone 2: LangGraph Agent — COMPLETE
 - [x] MCP client connects to mcp-server (stdio transport)
 - [x] Graph: agent node (Claude + tools) <-> tools node, conditional routing
 - [x] Escalation runbook resource injected into system prompt
-- [x] CLI test script (main.py) — verified working
-- Note: hit `mcp==2.0.0` incompatibility with langchain-mcp-adapters 0.3.1, 
-  pinned mcp<2.0. Also hit [whatever your MultiServerMCPClient init issue was] — 
+- [x] Fixed placeholder-substitution bug (model was echoing literal 
+      <issue_number> instead of using real tool-call results — fixed via 
+      explicit "never output placeholder text" instruction in both the 
+      runbook resource and system prompt)
+- [x] Conversation memory via InMemorySaver checkpointer, keyed by thread_id
+- [x] CLI test script (main.py) — verified: multi-tool orchestration, 
+      escalation flow, follow-up context retention
+  -Note: hit `mcp==2.0.0` incompatibility with langchain-mcp-adapters 0.3.1, 
+  pinned mcp<2.0. Also hit with MultiServerMCPClient init issue — 
   fixed by [changing config of MultiServerMCPClient initialization, from ops->command: python to ops->command: MCP_SERVER_PYTHON]
+
 ## Milestone 3: FastAPI Gateway — NOT STARTED
 ## Milestone 4: Next.js Frontend — NOT STARTED
