@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Mic, ArrowUp, FileStack, AlertTriangle, MessagesSquare } from "lucide-react";
-import { SiGithub, SiSlackware } from "@icons-pack/react-simple-icons";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 import Sidebar from "@/components/Sidebar";
 
 type ToolEvent = { name: string; status: "running" | "done" };
@@ -55,6 +55,7 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const threadIdRef = useRef<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isStreamingRef = useRef(false);
 
   useEffect(() => {
     threadIdRef.current = getThreadId();
@@ -72,7 +73,10 @@ export default function ChatPage() {
 
   async function sendMessage(overrideText?: string) {
     const text = overrideText ?? input;
-    if (!text.trim() || isStreaming) return;
+    if (!text.trim() || isStreamingRef.current) return;
+
+    isStreamingRef.current = true;
+    setIsStreaming(true);
 
     const userMessage: Message = { role: "user", content: text };
     const assistantMessage: Message = { role: "assistant", content: "", tools: [] };
@@ -103,22 +107,39 @@ export default function ChatPage() {
         const event = JSON.parse(line.slice(6));
 
         setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
+  if (prev.length === 0) return prev;
 
-          if (event.type === "token") {
-            last.content += event.content;
-          } else if (event.type === "tool_start") {
-            last.tools = [...(last.tools || []), { name: event.name, status: "running" }];
-          } else if (event.type === "tool_end") {
-            last.tools = (last.tools || []).map((t) =>
-              t.name === event.name ? { ...t, status: "done" } : t
-            );
-          }
-          return updated;
-        });
+  const lastIndex = prev.length - 1;
+  const last = prev[lastIndex];
+
+  let updatedLast = { ...last };
+
+  if (event.type === "token") {
+    updatedLast = {
+      ...updatedLast,
+      content: updatedLast.content + event.content,
+    };
+  } else if (event.type === "tool_start") {
+    updatedLast = {
+      ...updatedLast,
+      tools: [...(updatedLast.tools || []), { name: event.name, status: "running" }],
+    };
+  } else if (event.type === "tool_end") {
+    updatedLast = {
+      ...updatedLast,
+      tools: (updatedLast.tools || []).map((t) =>
+        t.name === event.name ? { ...t, status: "done" } : t
+      ),
+    };
+  }
+
+  const newMessages = [...prev];
+  newMessages[lastIndex] = updatedLast;
+  return newMessages;
+});
       }
     }
+    isStreamingRef.current = false;
     setIsStreaming(false);
   }
 
@@ -177,11 +198,10 @@ export default function ChatPage() {
                     </div>
                   )}
                   <div
-                    className={`inline-block px-4 py-2.5 rounded-2xl max-w-lg text-sm leading-relaxed ${
-                      msg.role === "user"
+                    className={`inline-block px-4 py-2.5 rounded-2xl max-w-lg text-sm leading-relaxed ${msg.role === "user"
                         ? "bg-violet-600 text-white"
                         : "bg-zinc-100 text-zinc-900"
-                    }`}
+                      }`}
                   >
                     {msg.content || (isStreaming && msg.role === "assistant" ? "…" : "")}
                   </div>

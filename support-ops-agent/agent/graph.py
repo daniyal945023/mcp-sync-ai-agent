@@ -44,9 +44,9 @@ placeholder text like <number> or <issue_number> literally.
 
 Always explain briefly what action you took and why."""
 
-    def call_agent_node(state: MessagesState):
+    async def call_agent_node(state: MessagesState):
         messages = [SystemMessage(content=system_prompt)] + state["messages"] #add the system prompt in messages state
-        response = groq_llm_with_tools.invoke(messages)
+        response = await groq_llm_with_tools.ainvoke(messages)
         return {"messages": response} #we add the response to the state as well
 
     builder = StateGraph(MessagesState)
