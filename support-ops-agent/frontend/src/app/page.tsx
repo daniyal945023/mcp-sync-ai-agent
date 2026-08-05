@@ -4,6 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, ArrowUp, FileStack, AlertTriangle, MessagesSquare } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import Sidebar from "@/components/Sidebar";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import VoiceOrb from "@/components/VoiceOrb";
+import { Volume2, VolumeX } from "lucide-react";
+import { useSyncExternalStore } from "react";
 
 type ToolEvent = { name: string; status: "running" | "done" };
 type Message = {
@@ -49,6 +54,16 @@ function getThreadId(): string {
   return id;
 }
 
+
+const emptySubscribe = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,  // Client value
+    () => false  // Server value
+  );
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -56,6 +71,38 @@ export default function ChatPage() {
   const threadIdRef = useRef<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech();
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  const isClient = useIsClient();
+
+
+
+  // Keep the input box synced with live transcript while listening
+  const inputValue = listening ? transcript : input;
+
+  function toggleListening() {
+  if (listening) {
+    SpeechRecognition.stopListening();
+    if (transcript.trim()) {
+      sendMessage(transcript);
+      resetTranscript();
+    }
+  } else {
+    stopSpeaking();
+    resetTranscript();
+    setInput(""); // clear prior manual input
+    SpeechRecognition.startListening({ continuous: true });
+  }
+}
+
+  
 
   useEffect(() => {
     threadIdRef.current = getThreadId();
@@ -72,76 +119,87 @@ export default function ChatPage() {
   }
 
   async function sendMessage(overrideText?: string) {
-    const text = overrideText ?? input;
-    if (!text.trim() || isStreamingRef.current) return;
+  const text = overrideText ?? input;
+  if (!text.trim() || isStreamingRef.current) return;
 
-    isStreamingRef.current = true;
-    setIsStreaming(true);
+  isStreamingRef.current = true;
+  setIsStreaming(true);
 
-    const userMessage: Message = { role: "user", content: text };
-    const assistantMessage: Message = { role: "assistant", content: "", tools: [] };
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
-    setInput("");
-    setIsStreaming(true);
+  const userMessage: Message = { role: "user", content: text };
+  const assistantMessage: Message = { role: "assistant", content: "", tools: [] };
+  setMessages((prev) => [...prev, userMessage, assistantMessage]);
+  setInput("");
+  setIsStreaming(true);
 
-    const response = await fetch("http://localhost:8000/chat/stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, thread_id: threadIdRef.current }),
-    });
+  const response = await fetch("http://localhost:8000/chat/stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text, thread_id: threadIdRef.current }),
+  });
 
-    const reader = response.body!.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let fullAssistantText = ""; // Track full content for TTS
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n\n");
-      buffer = lines.pop() || "";
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n\n");
+    buffer = lines.pop() || "";
 
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const event = JSON.parse(line.slice(6));
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const event = JSON.parse(line.slice(6));
 
-        setMessages((prev) => {
-  if (prev.length === 0) return prev;
-
-  const lastIndex = prev.length - 1;
-  const last = prev[lastIndex];
-
-  let updatedLast = { ...last };
-
-  if (event.type === "token") {
-    updatedLast = {
-      ...updatedLast,
-      content: updatedLast.content + event.content,
-    };
-  } else if (event.type === "tool_start") {
-    updatedLast = {
-      ...updatedLast,
-      tools: [...(updatedLast.tools || []), { name: event.name, status: "running" }],
-    };
-  } else if (event.type === "tool_end") {
-    updatedLast = {
-      ...updatedLast,
-      tools: (updatedLast.tools || []).map((t) =>
-        t.name === event.name ? { ...t, status: "done" } : t
-      ),
-    };
-  }
-
-  const newMessages = [...prev];
-  newMessages[lastIndex] = updatedLast;
-  return newMessages;
-});
+      if (event.type === "token") {
+        fullAssistantText += event.content; // Accumulate text as it streams
       }
+
+      setMessages((prev) => {
+        if (prev.length === 0) return prev;
+
+        const lastIndex = prev.length - 1;
+        const last = prev[lastIndex];
+
+        let updatedLast = { ...last };
+
+        if (event.type === "token") {
+          updatedLast = {
+            ...updatedLast,
+            content: updatedLast.content + event.content,
+          };
+        } else if (event.type === "tool_start") {
+          updatedLast = {
+            ...updatedLast,
+            tools: [...(updatedLast.tools || []), { name: event.name, status: "running" }],
+          };
+        } else if (event.type === "tool_end") {
+          updatedLast = {
+            ...updatedLast,
+            tools: (updatedLast.tools || []).map((t) =>
+              t.name === event.name ? { ...t, status: "done" } : t
+            ),
+          };
+        }
+
+        const newMessages = [...prev];
+        newMessages[lastIndex] = updatedLast;
+        return newMessages;
+      });
     }
-    isStreamingRef.current = false;
-    setIsStreaming(false);
   }
+
+  isStreamingRef.current = false;
+  setIsStreaming(false);
+
+  // Speak only after stream ends
+  if (voiceEnabled && fullAssistantText.trim()) {
+    speak(fullAssistantText);
+  }
+}
 
   const hasMessages = messages.length > 0;
 
@@ -154,7 +212,7 @@ export default function ChatPage() {
           {!hasMessages ? (
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-900 mb-2">
-                How can ConduitAI help today?
+                How can ConduitAI help you today?
               </h1>
               <p className="text-zinc-500 mb-10">
                 Ask about GitHub issues, Slack activity, or your Notion tracker.
@@ -199,8 +257,8 @@ export default function ChatPage() {
                   )}
                   <div
                     className={`inline-block px-4 py-2.5 rounded-2xl max-w-lg text-sm leading-relaxed ${msg.role === "user"
-                        ? "bg-violet-600 text-white"
-                        : "bg-zinc-100 text-zinc-900"
+                      ? "bg-violet-600 text-white"
+                      : "bg-zinc-100 text-zinc-900"
                       }`}
                   >
                     {msg.content || (isStreaming && msg.role === "assistant" ? "…" : "")}
@@ -212,21 +270,43 @@ export default function ChatPage() {
           )}
         </div>
 
+
         <div className="px-4 md:px-8 pb-6">
+          {(listening || isSpeaking) && (
+  <div className="flex justify-center mb-3">
+    <VoiceOrb state={listening ? "listening" : isSpeaking ? "speaking" : "idle"} />
+  </div>
+)}
           <div className="max-w-2xl mx-auto flex items-center gap-2 bg-white border border-zinc-200 rounded-full px-4 py-2 shadow-sm focus-within:border-violet-400 transition-colors">
             <input
               className="flex-1 outline-none text-sm placeholder:text-zinc-400"
-              value={input}
+              value={inputValue}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type your prompt here"
               disabled={isStreaming}
             />
+             <button
+    onClick={toggleListening}
+    disabled={isClient ? !browserSupportsSpeechRecognition : true}
+    className={`transition-colors ${
+      listening ? "text-fuchsia-600" : "text-zinc-400 hover:text-violet-600"
+    }`}
+    title={
+      isClient && browserSupportsSpeechRecognition
+        ? "Voice input"
+        : "Not supported in this browser"
+    }
+  >
+    <Mic size={18} />
+  </button>
+
             <button
+              onClick={() => setVoiceEnabled((v) => !v)}
               className="text-zinc-400 hover:text-violet-600 transition-colors"
-              title="Voice input (coming soon)"
+              title={voiceEnabled ? "Mute voice output" : "Enable voice output"}
             >
-              <Mic size={18} />
+              {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
             <button
               onClick={() => sendMessage()}

@@ -36,6 +36,15 @@
   backend imports agent/graph.py directly across the folder boundary. 
   Stretch goal: convert agent/ into an installable local package.
 
-  
 
-## Milestone 4: Next.js Frontend — NOT STARTED
+## Milestone 4: Next.js Frontend — COMPLETE
+- [x] Chat UI with streaming tokens + live tool-call indicators
+- [x] Suggestion cards (GitHub/Slack/Notion/Escalation) tied to real prompts
+- [x] Rebrand to ConduitAI, purple accent, responsive sidebar (drawer on mobile)
+- [x] thread_id persisted in localStorage, New Chat resets it
+- [x] Fixed: double-word rendering bug — setMessages updater was mutating 
+      `prev` directly instead of returning new objects; React Strict Mode's 
+      double-invocation of updaters exposed it. Fixed by making the updater 
+      fully immutable.
+
+## PROJECT 1: Support Ops Agent — COMPLETE (core build)
