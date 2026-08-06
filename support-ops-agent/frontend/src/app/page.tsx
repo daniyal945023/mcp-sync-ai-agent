@@ -69,7 +69,24 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const threadIdRef = useRef<string>("");
+  const [activeThreadId, setActiveThreadId] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    const key = "ops-agent-thread-id";
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(key, id);
+    }
+    return id;
+  });
+  const threadIdRef = useRef<string>(activeThreadId);
+
+  useEffect(() => {
+    threadIdRef.current = activeThreadId;
+  }, [activeThreadId]);
+
+
+
   const bottomRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -83,6 +100,7 @@ export default function ChatPage() {
 
   const isClient = useIsClient();
   const { getToken } = useAuth();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 
 
@@ -115,10 +133,54 @@ export default function ChatPage() {
   }, [messages]);
 
   function newChat() {
-    localStorage.setItem("ops-agent-thread-id", crypto.randomUUID());
-    threadIdRef.current = getThreadId();
-    setMessages([]);
+  const newId = crypto.randomUUID();
+  localStorage.setItem("ops-agent-thread-id", newId);
+  setActiveThreadId(newId);
+  setMessages([]);
+}
+
+async function selectThread(threadId: string) {
+  localStorage.setItem("ops-agent-thread-id", threadId);
+  setActiveThreadId(threadId);
+
+  const token = await getToken();
+  const res = await fetch(`http://localhost:8000/threads/${threadId}/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.ok) {
+    const history = await res.json();
+    setMessages(history);
   }
+}
+
+useEffect(() => {
+  if (!activeThreadId) return;
+  let isCancelled = false;
+
+  async function loadThreadHistory() {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch(`http://localhost:8000/threads/${activeThreadId}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok && !isCancelled) {
+        const history = await res.json();
+        setMessages(history);
+      }
+    } catch (error) {
+console.error("Failed to load thread history:", error);
+    }
+  }
+
+  loadThreadHistory();
+
+  return () => {
+    isCancelled = true;
+  };
+}, [activeThreadId, getToken]);
+
 
   async function sendMessage(overrideText?: string) {
   const text = overrideText ?? input;
@@ -200,6 +262,7 @@ export default function ChatPage() {
 
   isStreamingRef.current = false;
   setIsStreaming(false);
+  setRefreshTrigger((n) => n + 1);
 
   // Speak only after stream ends
   if (voiceEnabled && fullAssistantText.trim()) {
@@ -211,7 +274,11 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar onNewChat={newChat} />
+      <Sidebar onNewChat={newChat}
+  onSelectThread={selectThread}
+  activeThreadId={activeThreadId}
+  refreshTrigger={refreshTrigger}
+ />
 
       <div className="flex-1 flex flex-col bg-gradient-to-b from-violet-50 via-white to-white">
         <div className="flex-1 overflow-y-auto px-4 md:px-8">

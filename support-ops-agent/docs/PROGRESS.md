@@ -64,6 +64,21 @@
   integration; auth scopes app identity + chat history, not third-party access. 
   Per-user OAuth flagged as a legitimate stretch goal, out of scope for now.
 
-## Milestone 6: Chat History — IN PROGRESS
-## Milestone 7: Docker — NOT STARTED
-## Milestone 8: CI/CD (GitHub Actions) — NOT STARTED
+## Milestone 7: Chat History — COMPLETE
+- [x] threads table (thread_id, user_id, title, created_at)
+- [x] Auto-create thread record + derived title on first message
+- [x] GET /threads (list, scoped to authenticated user)
+- [x] GET /threads/{thread_id}/messages (ownership-checked, reads LangGraph 
+      checkpoint state directly rather than duplicating message storage)
+- [x] Sidebar wired to real data, click-to-load past conversations
+- [x] Fixed: page reload wasn't restoring active thread — mount effect only 
+      read thread_id from localStorage without loading its history; fixed by 
+      calling selectThread() on mount instead of just setting the ref
+
+
+
+## Milestone 7: Multi-Agent Architecture — IN PROGRESS
+## Milestone 8: Image Input — NOT STARTED
+## Milestone 9: Docker — NOT STARTED
+## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED
+## Milestone 11: Redis + WebSockets — NOT STARTED

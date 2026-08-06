@@ -3,8 +3,11 @@ import sys
 import json
 from pathlib import Path
 from contextlib import asynccontextmanager
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from auth import get_current_user_id
+import asyncpg
+from langchain_core.messages import HumanMessage, AIMessage
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "agent"))
 
@@ -29,12 +32,22 @@ checkpointer_cm = None
 
 @asynccontextmanager #prevents memory and connection leaks that occur from program crash
 async def lifespan(app: FastAPI):
-    global graph, checkpointer_cm
+    global graph, checkpointer_cm, db_pool
     checkpointer_cm = AsyncPostgresSaver.from_conn_string(DATABASE_URL)
     checkpointer = await checkpointer_cm.__aenter__()
     await checkpointer.setup()   # creates the checkpoint tables on first run — safe to call every startup, it's idempotent
     graph = await build_graph(checkpointer=checkpointer)
+    db_pool = await asyncpg.create_pool(DATABASE_URL)
+    async with db_pool.acquire() as conn:
+        await conn.execute(
+            """CREATE TABLE IF NOT EXISTS threads (
+            thread_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            title TEXT NOT NULL DEFAULT 'New Chat',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now())"""
+        )
     yield
+    await db_pool.close()
     await checkpointer_cm.__aexit__(None, None, None)
 
 app = FastAPI(lifespan=lifespan)
@@ -53,6 +66,17 @@ class ChatRequest(BaseModel):
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_id)):
     config = {"configurable": {"thread_id": req.thread_id}}
+
+    async with db_pool.acquire() as conn:
+        existing = await conn.fetchrow(
+            "SELECT thread_id from threads where thread_id = $1", req.thread_id
+        )
+        if not existing:
+            title = req.message[:50] + ("..." if len(req.message) > 50 else "")
+            await conn.execute(
+                "INSERT INTO threads (thread_id, user_id, title) VALUES ($1, $2, $3)",
+                req.thread_id, user_id, title,
+            )
 
     async def event_generator():
         async for event in graph.astream_events(
@@ -76,6 +100,35 @@ async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+
+@app.get("/threads")
+async def list_threads(user_id: str = Depends(get_current_user_id)):
+    async with db_pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT thread_id, title, created_at FROM threads WHERE user_id = $1 ORDER BY created_at DESC",user_id
+        )
+        
+    return [dict(row) for row in rows]
+
+@app.get("/threads/{thread_id}/messages")
+async def get_thread_messages(thread_id: str, user_id: str = Depends(get_current_user_id)):
+    async with db_pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT user_id FROM threads WHERE thread_id = $1", thread_id)
+
+        if not row or row["user_id"] != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+
+    config = {"configurable": {"thread_id": thread_id}}
+    state = await graph.aget_state(config)
+    messages = state.values.get("messages",[])
+
+    result = []
+    for m in messages:
+        if isinstance(m,HumanMessage):
+            result.append({"role": "user", "content": m.content})
+        elif isinstance(m,AIMessage) and m.content:
+            result.append({"role": "assistant", "content": m.content})
+    return result
 
 @app.get("/health")
 async def health():
