@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, MessageSquare, Menu, X } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 
 const RECENT_CHATS = [
   "Escalate login issue",
@@ -14,9 +15,11 @@ export default function Sidebar({ onNewChat }: { onNewChat: () => void }) {
 
   const content = (
     <div className="flex flex-col h-full bg-[#0E0E12] text-zinc-300 w-64 p-4">
+
+
       <div className="flex items-center justify-between mb-6">
         <span className="text-lg font-semibold tracking-tight text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-400 hover:to-fuchsia-400 hover:bg-clip-text hover:text-transparent cursor-default">
-          ConduitAI
+          Support-Ops
         </span>
         <button
           className="md:hidden text-zinc-400 hover:text-white transition-colors"
@@ -48,7 +51,13 @@ export default function Sidebar({ onNewChat }: { onNewChat: () => void }) {
           </button>
         ))}
       </div>
+
+       <div className="mt-auto pt-4 border-t border-white/10">
+  <UserButton />
+</div>
+
     </div>
+    
   );
 
   return (
@@ -74,6 +83,8 @@ export default function Sidebar({ onNewChat }: { onNewChat: () => void }) {
           />
         </div>
       )}
+   
+   
     </>
   );
 }

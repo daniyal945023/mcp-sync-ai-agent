@@ -48,3 +48,22 @@
       fully immutable.
 
 ## PROJECT 1: Support Ops Agent — COMPLETE (core build)
+
+## Milestone 5: Adding Voice Input and Output
+- [x] Voice input (STT): react-speech-recognition — a thin, actively-maintained wrapper around the browser's built-in Web Speech API. It provides a useSpeechRecognition hook exposing a live transcript, plus SpeechRecognition.startListening()/stopListening() to control the mic.
+- [x] Voice output (TTS): the browser's native SpeechSynthesis API directly; We wrote a custom hook useTextToSpeech.tsx.
+- [x] Glowing orb: pure CSS (conic-gradient + blur + keyframe animation).
+
+
+## Milestone 6: Authentication — COMPLETE
+- [x] Clerk integration (frontend sign-in/sign-up, middleware route protection)
+- [x] Backend verifies Clerk JWT via clerk-backend-api (official SDK, avoids 
+      deprecated python-jose pattern with known CVE)
+- [x] /chat/stream requires valid auth — verified 401 on unauthenticated curl test
+- Note: shared service credentials model — all users share one GitHub/Slack/Notion 
+  integration; auth scopes app identity + chat history, not third-party access. 
+  Per-user OAuth flagged as a legitimate stretch goal, out of scope for now.
+
+## Milestone 6: Chat History — IN PROGRESS
+## Milestone 7: Docker — NOT STARTED
+## Milestone 8: CI/CD (GitHub Actions) — NOT STARTED

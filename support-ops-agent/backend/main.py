@@ -3,6 +3,8 @@ import sys
 import json
 from pathlib import Path
 from contextlib import asynccontextmanager
+from fastapi import Depends
+from auth import get_current_user_id
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "agent"))
 
@@ -49,7 +51,7 @@ class ChatRequest(BaseModel):
     thread_id: str
 
 @app.post("/chat/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_id)):
     config = {"configurable": {"thread_id": req.thread_id}}
 
     async def event_generator():

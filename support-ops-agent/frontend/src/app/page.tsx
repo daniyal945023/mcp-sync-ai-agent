@@ -9,6 +9,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceOrb from "@/components/VoiceOrb";
 import { Volume2, VolumeX } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { useAuth } from "@clerk/nextjs";
 
 type ToolEvent = { name: string; status: "running" | "done" };
 type Message = {
@@ -81,6 +82,7 @@ export default function ChatPage() {
   } = useSpeechRecognition();
 
   const isClient = useIsClient();
+  const { getToken } = useAuth();
 
 
 
@@ -131,9 +133,13 @@ export default function ChatPage() {
   setInput("");
   setIsStreaming(true);
 
+  const token = await getToken();
+
   const response = await fetch("http://localhost:8000/chat/stream", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+     },
     body: JSON.stringify({ message: text, thread_id: threadIdRef.current }),
   });
 
@@ -212,7 +218,7 @@ export default function ChatPage() {
           {!hasMessages ? (
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-900 mb-2">
-                How can ConduitAI help you today?
+                How can I help you today?
               </h1>
               <p className="text-zinc-500 mb-10">
                 Ask about GitHub issues, Slack activity, or your Notion tracker.
