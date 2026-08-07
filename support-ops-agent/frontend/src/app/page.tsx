@@ -10,6 +10,8 @@ import VoiceOrb from "@/components/VoiceOrb";
 import { Volume2, VolumeX } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { useAuth } from "@clerk/nextjs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ToolEvent = { name: string; status: "running" | "done" };
 type Message = {
@@ -226,37 +228,28 @@ console.error("Failed to load thread history:", error);
         fullAssistantText += event.content; // Accumulate text as it streams
       }
 
-      setMessages((prev) => {
-        if (prev.length === 0) return prev;
+     setMessages((prev) => {
+  const last = prev[prev.length - 1];
+  let updatedLast = last;
 
-        const lastIndex = prev.length - 1;
-        const last = prev[lastIndex];
+  if (event.type === "final_message") {
+    updatedLast = { ...last, content: event.content };
+  } else if (event.type === "tool_start") {
+    updatedLast = {
+      ...last,
+      tools: [...(last.tools || []), { name: event.name, status: "running" }],
+    };
+  } else if (event.type === "tool_end") {
+    updatedLast = {
+      ...last,
+      tools: (last.tools || []).map((t) =>
+        t.name === event.name ? { ...t, status: "done" } : t
+      ),
+    };
+  }
 
-        let updatedLast = { ...last };
-
-        if (event.type === "token") {
-          updatedLast = {
-            ...updatedLast,
-            content: updatedLast.content + event.content,
-          };
-        } else if (event.type === "tool_start") {
-          updatedLast = {
-            ...updatedLast,
-            tools: [...(updatedLast.tools || []), { name: event.name, status: "running" }],
-          };
-        } else if (event.type === "tool_end") {
-          updatedLast = {
-            ...updatedLast,
-            tools: (updatedLast.tools || []).map((t) =>
-              t.name === event.name ? { ...t, status: "done" } : t
-            ),
-          };
-        }
-
-        const newMessages = [...prev];
-        newMessages[lastIndex] = updatedLast;
-        return newMessages;
-      });
+  return [...prev.slice(0, -1), updatedLast];
+});
     }
   }
 
@@ -334,7 +327,17 @@ console.error("Failed to load thread history:", error);
                       : "bg-zinc-100 text-zinc-900"
                       }`}
                   >
-                    {msg.content || (isStreaming && msg.role === "assistant" ? "…" : "")}
+                    {msg.role === "assistant" ? (
+    msg.content ? (
+      <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+      </div>
+    ) : (
+      isStreaming && "…"
+    )
+  ) : (
+    msg.content
+  )}
                   </div>
                 </div>
               ))}

@@ -16,7 +16,7 @@ HEADERS = {
     "Accept": "application/vnd.github+json",
 }
 
-def list_open_issues(limit: int = 10):
+def list_open_issues(limit: int | str = 10):
     url = f"https://api.github.com/repos/{GITHUB_REPO}/issues"
     response = requests.get(url, headers=HEADERS, params={"state":"open", "per_page": limit})
     response.raise_for_status() #automatically throw error in case of failed request/fetch

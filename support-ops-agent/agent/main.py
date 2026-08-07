@@ -3,6 +3,9 @@ from graph import build_graph
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
+
+#CLI for testing the agent
+
 async def main():
     graph = await build_graph(checkpointer=InMemorySaver())
     config = {"configurable": {"thread_id": "cli-session-1"}}

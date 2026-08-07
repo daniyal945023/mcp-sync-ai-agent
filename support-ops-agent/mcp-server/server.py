@@ -8,7 +8,7 @@ from fastmcp.prompts import Message
 mcp = FastMCP("Server Ops MCP")
 
 @mcp.tool()
-def list_open_issues(limit: int = 10):
+def list_open_issues(limit: int | str = 10):
     """List open GitHub issues from the configured repo, most recent first."""
     return gh.list_open_issues(limit)
 
@@ -23,7 +23,7 @@ def post_slack_message(text: str) -> dict:
     return slack.post_message(text)
 
 @mcp.tool()
-def read_slack_messages(limit: int = 10) -> list[dict]: 
+def read_slack_messages(limit: int | str = 10) -> list[dict]: 
     """Read the most recent messages from the team's Slack channel."""
     return slack.read_recent_messages(limit)
 

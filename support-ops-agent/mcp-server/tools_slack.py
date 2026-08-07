@@ -30,7 +30,7 @@ def post_message(text: str):
 
     return {"status": "sent", "timestamp": data["ts"]}
 
-def read_recent_messages(limit: int = 10):
+def read_recent_messages(limit: int | str = 10):
     url = "https://slack.com/api/conversations.history"
     response = requests.get(
         url,

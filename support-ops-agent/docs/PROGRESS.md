@@ -77,7 +77,29 @@
 
 
 
-## Milestone 7: Multi-Agent Architecture — IN PROGRESS
+## Milestone 7: Multi-Agent Architecture — COMPLETE
+- [x] Supervisor + devops_agent (GitHub) + comms_agent (Slack/Notion), 
+      via agent-as-tool pattern (create_agent + @tool-wrapped delegate calls)
+- [x] Fixed: multi-agent wrapper was returning child-agent results in a format Groq rejected for tool messages
+  - Root cause: the supervisor was receiving structured/complex content from delegated child agents instead of a plain text string
+  - Fix: normalized child-agent output to a simple string before returning it from the wrapper tool
+- [x] Fixed: Groq rate-limit / bad-request failures caused retry storms
+  - Root cause: retries were firing immediately on provider errors, consuming quota faster
+  - Fix: added explicit handling for rate-limit and bad-request errors, with graceful fallback responses instead of aggressive retry loops
+- [x] Fixed: child-agent wrapper tools were not correctly scoped around the specialist agents
+  - Root cause: helper logic and wrapper tools were not properly closing over the created `devops_agent` / `comms_agent` instances
+  - Fix: moved helper logic inside the graph build flow so the wrapper tools reliably invoke the correct agents
+- [x] Fixed: model occasionally emitted malformed tool-call payloads
+  - Mitigation: lowered temperature to `0.1` and kept tool-call delegation structured for more stable behavior
+- [x] Verified via CLI: GitHub listing, Slack listing, and escalation flow all work end-to-end through the multi-agent supervisor
+- [x] Fixed: nested sub-agent streams caused duplicated/interleaved output — 
+      switched from live token streaming to final-message-on-completion, 
+      since attributing tokens to the correct sub-agent mid-stream is 
+      unreliable with nested runs. Tool-call indicators still stream live; 
+      final answer renders as one clean markdown block once the run completes.
+- [x] Added react-markdown + remark-gfm for proper formatting
+
+
 ## Milestone 8: Image Input — NOT STARTED
 ## Milestone 9: Docker — NOT STARTED
 ## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED

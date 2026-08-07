@@ -85,17 +85,17 @@ async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_
             version="v2"
         ):
             kind = event["event"]
-            if kind == "on_chat_model_stream":
-                chunk = event["data"]["chunk"]
-                if chunk.content:
-                    yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+            
 
-            elif kind == "on_tool_start":
+            if kind == "on_tool_start":
                 yield f"data: {json.dumps({'type': 'tool_start', 'name': event['name']})}\n\n"
 
             elif kind == "on_tool_end":
                 yield f"data: {json.dumps({'type': 'tool_end', 'name': event['name']})}\n\n"
 
+        final_state = await graph.aget_state(config)
+        final_content = final_state.values["messages"][-1].content
+        yield f"data: {json.dumps({'type': 'final_message', 'content': final_content})}\n\n"
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
