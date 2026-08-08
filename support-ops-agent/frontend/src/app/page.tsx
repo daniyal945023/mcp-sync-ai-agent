@@ -12,6 +12,8 @@ import { useSyncExternalStore } from "react";
 import { useAuth } from "@clerk/nextjs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Paperclip, X } from "lucide-react";
+import Image from 'next/image'
 
 type ToolEvent = { name: string; status: "running" | "done" };
 type Message = {
@@ -103,7 +105,7 @@ export default function ChatPage() {
   const isClient = useIsClient();
   const { getToken } = useAuth();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
+const [pendingImage, setPendingImage] = useState<string | null>(null);
 
 
   // Keep the input box synced with live transcript while listening
@@ -204,8 +206,9 @@ console.error("Failed to load thread history:", error);
     headers: { "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
      },
-    body: JSON.stringify({ message: text, thread_id: threadIdRef.current }),
+    body: JSON.stringify({ message: text, thread_id: threadIdRef.current, image: pendingImage }),
   });
+  setPendingImage(null)
 
   const reader = response.body!.getReader();
   const decoder = new TextDecoder();
@@ -264,6 +267,14 @@ console.error("Failed to load thread history:", error);
 }
 
   const hasMessages = messages.length > 0;
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => setPendingImage(reader.result as string);
+  reader.readAsDataURL(file);
+}
 
   return (
     <div className="flex h-screen bg-white">
@@ -362,6 +373,19 @@ console.error("Failed to load thread history:", error);
               placeholder="Type your prompt here"
               disabled={isStreaming}
             />
+
+             {pendingImage && (
+  <div className="max-w-2xl mx-auto mb-2 relative w-fit">
+    <Image src={pendingImage} alt="attached" width={200} height={200} className="h-16 rounded-lg border border-zinc-200" />
+    <button
+      onClick={() => setPendingImage(null)}
+      className="absolute -top-2 -right-2 bg-zinc-800 text-white rounded-full p-0.5"
+    >
+      <X size={12} />
+    </button>
+  </div>
+)}
+
              <button
     onClick={toggleListening}
     disabled={isClient ? !browserSupportsSpeechRecognition : true}
@@ -376,7 +400,6 @@ console.error("Failed to load thread history:", error);
   >
     <Mic size={18} />
   </button>
-
             <button
               onClick={() => setVoiceEnabled((v) => !v)}
               className="text-zinc-400 hover:text-violet-600 transition-colors"
@@ -384,6 +407,12 @@ console.error("Failed to load thread history:", error);
             >
               {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
+
+          <label className="text-zinc-400 hover:text-violet-600 transition-colors cursor-pointer">
+  <Paperclip size={18} />
+  <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+</label>
+
             <button
               onClick={() => sendMessage()}
               disabled={isStreaming}

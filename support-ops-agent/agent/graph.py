@@ -35,7 +35,7 @@ async def build_graph(checkpointer=None):
 
 
     groq_llm = ChatGroq(
-        model="openai/gpt-oss-120b",
+        model="qwen/qwen3.6-27b",
         temperature=0.1
     )
     

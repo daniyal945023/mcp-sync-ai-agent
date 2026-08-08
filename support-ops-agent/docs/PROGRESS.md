@@ -100,7 +100,22 @@
 - [x] Added react-markdown + remark-gfm for proper formatting
 
 
-## Milestone 8: Image Input — NOT STARTED
+## Milestone 8: Image Input — COMPLETE
+- [x] Swapped shared model to meta-llama/llama-4-scout-17b-16e-instruct (vision-capable)
+- [x] Backend: ChatRequest accepts optional base64 image, builds multimodal 
+      HumanMessage when present
+- [x] Frontend: image upload + preview, sent alongside text message
+- [x] Verified: supervisor interprets image, delegates description to 
+      devops_agent/comms_agent as text (delegate tools stay text-only by design)
+
+## CORE FEATURES COMPLETE (Milestones 1-8)
+Multi-tool MCP server (GitHub/Slack/Notion + resource + prompt) → multi-agent 
+LangGraph supervisor → FastAPI SSE gateway → Next.js UI (ConduitAI, responsive, 
+voice in/out, image input) → Clerk auth → persistent per-user chat history.
+
 ## Milestone 9: Docker — NOT STARTED
 ## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED
 ## Milestone 11: Redis + WebSockets — NOT STARTED
+## Milestone 12-14: Hardening (logging, tests, security) — NOT STARTED
+## Milestone 15: Deployment — NOT STARTED
+## Milestone 16-18: Rate limiting, billing demo, load testing — NOT STARTED

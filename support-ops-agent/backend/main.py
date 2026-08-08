@@ -62,10 +62,13 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     message: str
     thread_id: str
+    image: str | None = None
 
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_id)):
     config = {"configurable": {"thread_id": req.thread_id}}
+
+
 
     async with db_pool.acquire() as conn:
         existing = await conn.fetchrow(
@@ -78,9 +81,19 @@ async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_
                 req.thread_id, user_id, title,
             )
 
+    if req.image:
+        content = [
+            {"type": "text", "text": req.message},
+            {"type": "image_url", "image_url": {"url": req.image}}
+        ]
+    else:
+        content = req.message
+
+    human_message = HumanMessage(content=content)
+
     async def event_generator():
         async for event in graph.astream_events(
-            {"messages": [HumanMessage(content=req.message)]},
+            {"messages": [human_message]},
             config=config,
             version="v2"
         ):
