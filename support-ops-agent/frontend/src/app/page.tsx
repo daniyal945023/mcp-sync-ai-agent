@@ -226,9 +226,11 @@ console.error("Failed to load thread history:", error);
     for (const line of lines) {
       if (!line.startsWith("data: ")) continue;
       const event = JSON.parse(line.slice(6));
+      const content = normalizeContent(event.content); //new code
 
-      if (event.type === "token") {
-        fullAssistantText += event.content; // Accumulate text as it streams
+      if (event.type === "token" || event.type === "final_message") {
+         fullAssistantText += content;
+        //fullAssistantText += event.content; // Accumulate text as it streams
       }
 
      setMessages((prev) => {
@@ -236,7 +238,7 @@ console.error("Failed to load thread history:", error);
   let updatedLast = last;
 
   if (event.type === "final_message") {
-    updatedLast = { ...last, content: event.content };
+    updatedLast = { ...last, content };  //content: event.content
   } else if (event.type === "tool_start") {
     updatedLast = {
       ...last,
@@ -274,6 +276,18 @@ console.error("Failed to load thread history:", error);
   const reader = new FileReader();
   reader.onload = () => setPendingImage(reader.result as string);
   reader.readAsDataURL(file);
+}
+
+function normalizeContent(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) return JSON.stringify(content);
+  if (content && typeof content === "object") {
+    const obj = content as Record<string, unknown>;
+    return typeof obj.text === "string"
+      ? obj.text
+      : JSON.stringify(obj);
+  }
+  return String(content ?? "");
 }
 
   return (

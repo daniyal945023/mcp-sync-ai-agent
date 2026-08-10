@@ -50,6 +50,26 @@ async def lifespan(app: FastAPI):
     await db_pool.close()
     await checkpointer_cm.__aexit__(None, None, None)
 
+
+def normalize_content(content):
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, dict):
+        if content.get("type") == "text" and isinstance(content.get("text"), str):
+            return content["text"]
+        if isinstance(content.get("text"), str):
+            return content["text"]
+        return json.dumps(content, ensure_ascii=False)
+
+    if isinstance(content, list):
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "text" and isinstance(item.get("text"), str):
+                return item["text"]
+        return json.dumps(content, ensure_ascii=False)
+
+    return str(content)
+
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -107,7 +127,14 @@ async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_
                 yield f"data: {json.dumps({'type': 'tool_end', 'name': event['name']})}\n\n"
 
         final_state = await graph.aget_state(config)
-        final_content = final_state.values["messages"][-1].content
+        #final_content = final_state.values["messages"][-1].content
+        final_content = normalize_content(final_state.values["messages"][-1].content)
+
+        if isinstance(final_content, dict):
+            final_content = final_content.get("text", json.dumps(final_content, ensure_ascii=False))
+        elif isinstance(final_content, list):
+            final_content = json.dumps(final_content, ensure_ascii=False)
+
         yield f"data: {json.dumps({'type': 'final_message', 'content': final_content})}\n\n"
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
@@ -138,9 +165,15 @@ async def get_thread_messages(thread_id: str, user_id: str = Depends(get_current
     result = []
     for m in messages:
         if isinstance(m,HumanMessage):
-            result.append({"role": "user", "content": m.content})
+            content = m.content
         elif isinstance(m,AIMessage) and m.content:
-            result.append({"role": "assistant", "content": m.content})
+            content = m.content
+        else:
+            continue
+
+        content = normalize_content(content)
+
+        result.append({"role": "assistant" if isinstance(m, AIMessage) else "user", "content": content})  
     return result
 
 @app.get("/health")

@@ -45,7 +45,7 @@ async def build_graph(checkpointer=None):
         tools=github_tools,
         name="devops_agent",
         system_prompt="""You handle GitHub only. You can list open issues and create new ones.
-        Do not attempt Slack or Notion actions — that's outside your scope.""",
+        Do not attempt Slack or Notion actions — that's outside your scope. Also if there are no Github issues, then say: No issues exist""",
     )
 
     comms_agent = create_agent(
@@ -53,7 +53,7 @@ async def build_graph(checkpointer=None):
         tools=comms_tools,
         name="comms_agent",
         system_prompt=f"""You handle Slack and Notion. You can post/read Slack messages and 
-manage the Notion tracker.
+manage the Notion tracker If there are no slack messages just say: No slack messages. Furthermore, If Notion database is empty, just say: Notion database is empty. 
 
 Escalation policy:
 {escalation_runbook}

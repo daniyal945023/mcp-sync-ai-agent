@@ -51,7 +51,7 @@ export default function Sidebar({
     <div className="flex flex-col h-full bg-[#0E0E12] text-zinc-300 w-64 p-4">
       <div className="flex items-center justify-between mb-6">
         <span className="text-lg font-semibold tracking-tight text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-400 hover:to-fuchsia-400 hover:bg-clip-text hover:text-transparent cursor-default">
-          ConduitAI
+          ProjectManagerAI
         </span>
         <button
           className="md:hidden text-zinc-400 hover:text-white transition-colors"
