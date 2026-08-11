@@ -8,6 +8,8 @@
     /v1/data_sources/{id}/query, pinned Notion-Version to 2025-09-03
 - [x] Add one @mcp.resource() (e.g. Notion schema or runbook)
 - [x] Add one @mcp.prompt() (e.g. triage_issue template)
+- [x] EDGE CASE: In case of no items in Github,Slack or Notion, the tool returned an empty list [], which LLM treated as a failed/inconclusive response, assuming it needed to retry, which led to an infinite tool-calling loop.
+SOLUTION: Modified the tools to return an explicit dictionary with a descriptive message, for e.g {"status": "success", "count": 0, "message": "No open GitHub issues found in the repository."}
 
 
 ## Milestone 2: LangGraph Agent — COMPLETE
@@ -53,6 +55,9 @@
 - [x] Voice input (STT): react-speech-recognition — a thin, actively-maintained wrapper around the browser's built-in Web Speech API. It provides a useSpeechRecognition hook exposing a live transcript, plus SpeechRecognition.startListening()/stopListening() to control the mic.
 - [x] Voice output (TTS): the browser's native SpeechSynthesis API directly; We wrote a custom hook useTextToSpeech.tsx.
 - [x] Glowing orb: pure CSS (conic-gradient + blur + keyframe animation).
+- [x] Improved: voice input transcription for product names
+  - Implemented a lightweight post-processing layer for speech transcripts to correct common Web Speech API misrecognitions such as "GitHub" → "get hub" and "Slack" → "slap".
+  - This normalization runs client-side before the prompt is sent to the agent, improving reliability for voice-driven workflows without adding heavy dependencies.
 
 
 ## Milestone 6: Authentication — COMPLETE
@@ -89,7 +94,7 @@
 - [x] Fixed: child-agent wrapper tools were not correctly scoped around the specialist agents
   - Root cause: helper logic and wrapper tools were not properly closing over the created `devops_agent` / `comms_agent` instances
   - Fix: moved helper logic inside the graph build flow so the wrapper tools reliably invoke the correct agents
-- [x] Fixed: model occasionally emitted malformed tool-call payloads
+- [x] Fixed: model occasionally emitted malformed tool-call payloads, Groq requires strict payload schema which was corrupted due to nested tool calls
   - Mitigation: lowered temperature to `0.1` and kept tool-call delegation structured for more stable behavior
 - [x] Verified via CLI: GitHub listing, Slack listing, and escalation flow all work end-to-end through the multi-agent supervisor
 - [x] Fixed: nested sub-agent streams caused duplicated/interleaved output — 
@@ -112,6 +117,12 @@
 Multi-tool MCP server (GitHub/Slack/Notion + resource + prompt) → multi-agent 
 LangGraph supervisor → FastAPI SSE gateway → Next.js UI (ConduitAI, responsive, 
 voice in/out, image input) → Clerk auth → persistent per-user chat history.
+
+ERROR: If i send a message, and close the window haphazardly while waiting for llm response, and reopen it, my sent message still appears without any llm response. Ideally, when i reopen the window, my sent message should disappear
+ADDED: I need a delete functionality for a chat session
+ADDED: Web speech api isnt able to accurately "hear" certain words such as Slack and Github
+ERROR: If github issues,notion tracker or slack messages r empty, the llm gets confused
+ERROR: LLM takes very long to execute entire workflow of creating issue,sending msg and updating notion db
 
 ## Milestone 9: Docker — NOT STARTED
 ## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED

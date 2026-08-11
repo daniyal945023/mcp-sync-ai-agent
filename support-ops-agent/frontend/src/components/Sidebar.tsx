@@ -2,18 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth, UserButton } from "@clerk/nextjs";
-import { Plus, MessageSquare, Menu, X } from "lucide-react";
+import { Plus, MessageSquare, Menu, X, Trash2 } from "lucide-react";
 
 type Thread = { thread_id: string; title: string; created_at: string };
 
 export default function Sidebar({
   onNewChat,
   onSelectThread,
+  onDeleteThread,
   activeThreadId,
   refreshTrigger,
 }: {
   onNewChat: () => void;
   onSelectThread: (threadId: string) => void;
+  onDeleteThread: (threadId: string) => void;
   activeThreadId: string;
   refreshTrigger: number;
 }) {
@@ -50,7 +52,7 @@ export default function Sidebar({
   const content = (
     <div className="flex flex-col h-full bg-[#0E0E12] text-zinc-300 w-64 p-4">
       <div className="flex items-center justify-between mb-6">
-        <span className="text-lg font-semibold tracking-tight text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-400 hover:to-fuchsia-400 hover:bg-clip-text hover:text-transparent cursor-default">
+        <span className="text-lg font-semibold tracking-tight transition-all duration-300 bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent cursor-default">
           ProjectManagerAI
         </span>
         <button
@@ -76,22 +78,45 @@ export default function Sidebar({
         {threads.length === 0 && (
           <div className="text-xs text-zinc-600 px-3 py-2">No conversations yet</div>
         )}
+
         {threads.map((t) => (
-          <button
+          <div
             key={t.thread_id}
-            onClick={() => {
-              onSelectThread(t.thread_id);
-              setOpen(false);
-            }}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left ${t.thread_id === activeThreadId
+            className={`flex min-w-0 items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${t.thread_id === activeThreadId
                 ? "bg-white/10 text-white"
                 : "text-zinc-400 hover:bg-white/5 hover:text-white"
               }`}
           >
-            <MessageSquare size={14} />
-            <span className="truncate">{t.title}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectThread(t.thread_id);
+                setOpen(false);
+              }}
+              className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-left"
+            >
+              
+                <MessageSquare size={14} className="shrink-0" />
+                <span className="min-w-0 whitespace-nowrap truncate">{t.title}</span>
+              
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Delete this conversation?")) {
+                  onDeleteThread(t.thread_id);
+                }
+              }}
+              className="shrink-0 text-zinc-400 hover:text-rose-400"
+              aria-label={`Delete conversation ${t.title}`}
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
         ))}
+
       </div>
       <div className="mt-auto pt-4 border-t border-white/10">
         <UserButton />

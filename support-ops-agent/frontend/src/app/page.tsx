@@ -14,6 +14,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Paperclip, X } from "lucide-react";
 import Image from 'next/image'
+import { FaGithub, FaSlack } from 'react-icons/fa6';
+import { SiNotion } from 'react-icons/si';
+
 
 type ToolEvent = { name: string; status: "running" | "done" };
 type Message = {
@@ -24,19 +27,19 @@ type Message = {
 
 const SUGGESTIONS = [
   {
-    icon: SiGithub,
+    icon: FaGithub,
     title: "GitHub Issues",
     desc: "List open issues or file a new one",
     prompt: "List my open GitHub issues",
   },
   {
-    icon: MessagesSquare,
+    icon: FaSlack,
     title: "Slack Updates",
     desc: "Catch up on recent team messages",
     prompt: "What are the recent messages in Slack?",
   },
   {
-    icon: FileStack,
+    icon: SiNotion,
     title: "Notion Tracker",
     desc: "See what's logged and its status",
     prompt: "Show me everything in the Notion tracker",
@@ -115,7 +118,7 @@ const [pendingImage, setPendingImage] = useState<string | null>(null);
   if (listening) {
     SpeechRecognition.stopListening();
     if (transcript.trim()) {
-      sendMessage(transcript);
+      sendMessage(normalizeVoiceTranscript(transcript));
       resetTranscript();
     }
   } else {
@@ -187,7 +190,7 @@ console.error("Failed to load thread history:", error);
 
 
   async function sendMessage(overrideText?: string) {
-  const text = overrideText ?? input;
+  const text = normalizeVoiceTranscript(overrideText ?? input);
   if (!text.trim() || isStreamingRef.current) return;
 
   isStreamingRef.current = true;
@@ -290,15 +293,57 @@ function normalizeContent(content: unknown): string {
   return String(content ?? "");
 }
 
+async function deleteThread(threadId: string) {
+  const token = await getToken();
+  const res = await fetch(`http://localhost:8000/threads/${threadId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    console.error("Failed to delete thread", await res.text());
+    return;
+  }
+
+  if (threadId === activeThreadId) {
+    newChat();
+  }
+
+  setRefreshTrigger((n) => n + 1);
+}
+
+function normalizeVoiceTranscript(text: string): string {
+  if (!text) return text;
+
+  const cleaned = text
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\bget[\s-]*hub\b/gi, "GitHub")
+    .replace(/\bslap\b/gi, "Slack")
+    .replace(/\bslackk\b/gi, "Slack")
+    .replace(/\bgethub\b/gi, "GitHub")
+    .replace(/\bgether\b/gi, "GitHub")
+    .replace(/\bget her\b/gi, "GitHub")
+    .replace(/\bget-hub\b/gi, "GitHub")
+    .replace(/\bguitar\b/gi, "GitHub")
+    .replace(/\blockk\b/gi, "log")
+    .replace(/\block\b/gi, "log");
+
+  return cleaned;
+}
+
   return (
     <div className="flex h-screen bg-white">
       <Sidebar onNewChat={newChat}
   onSelectThread={selectThread}
+  onDeleteThread={deleteThread}
   activeThreadId={activeThreadId}
   refreshTrigger={refreshTrigger}
  />
 
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-violet-50 via-white to-white">
+      <div className="flex-1 flex flex-col bg-gradient-to-b from-violet-200 via-white to-white">
         <div className="flex-1 overflow-y-auto px-4 md:px-8">
           {!hasMessages ? (
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center">
@@ -306,7 +351,7 @@ function normalizeContent(content: unknown): string {
                 How can I help you today?
               </h1>
               <p className="text-zinc-500 mb-10">
-                Ask about GitHub issues, Slack activity, or your Notion tracker.
+                Manage your GitHub issues, Slack activity, and Notion database, all in one place.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
@@ -317,7 +362,7 @@ function normalizeContent(content: unknown): string {
                     className="group text-left p-4 rounded-xl border border-zinc-200 bg-white hover:border-violet-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                   >
                     <s.icon
-                      size={18}
+                      size={21}
                       className="text-violet-600 mb-2 group-hover:scale-110 transition-transform"
                     />
                     <div className="font-medium text-zinc-900 text-sm">{s.title}</div>

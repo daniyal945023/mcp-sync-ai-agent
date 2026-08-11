@@ -43,6 +43,9 @@ def query_database(status_filter: str | None = None) -> list[dict]:
     resp.raise_for_status()
     results = resp.json()["results"]
 
+    if not results:
+        return {"status": "success", "count": 0, "message": "No Notion tickets found in the database."}
+
     return [
         {
             "id": page["id"],

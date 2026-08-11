@@ -3,7 +3,7 @@ import sys
 import json
 from pathlib import Path
 from contextlib import asynccontextmanager
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Response, status
 from auth import get_current_user_id
 import asyncpg
 from langchain_core.messages import HumanMessage, AIMessage
@@ -29,10 +29,13 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 
 graph = None
 checkpointer_cm = None
+#new
+checkpointer = None
 
 @asynccontextmanager #prevents memory and connection leaks that occur from program crash
 async def lifespan(app: FastAPI):
-    global graph, checkpointer_cm, db_pool
+    global graph, checkpointer_cm, checkpointer, db_pool
+    #global checkpointer is new
     checkpointer_cm = AsyncPostgresSaver.from_conn_string(DATABASE_URL)
     checkpointer = await checkpointer_cm.__aenter__()
     await checkpointer.setup()   # creates the checkpoint tables on first run — safe to call every startup, it's idempotent
@@ -175,6 +178,27 @@ async def get_thread_messages(thread_id: str, user_id: str = Depends(get_current
 
         result.append({"role": "assistant" if isinstance(m, AIMessage) else "user", "content": content})  
     return result
+
+
+@app.delete("/threads/{thread_id}")
+async def delete_thread(thread_id: str, user_id: str = Depends(get_current_user_id)):
+    async with db_pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT user_id FROM threads WHERE thread_id = $1", thread_id
+        )
+        if not row or row["user_id"] != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+
+        await conn.execute(
+            "DELETE FROM threads WHERE thread_id = $1",
+            thread_id,
+        )
+
+    if checkpointer is not None:
+        await checkpointer.adelete_thread(thread_id)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 @app.get("/health")
 async def health():

@@ -42,7 +42,10 @@ def read_recent_messages(limit: int | str = 10):
     if not data.get("ok"):
         raise RuntimeError(f"Slack API error: {data.get('error')}")
 
+    messages = data.get("messages", [])
+    if not messages:
+        return {"status": "success", "count": 0, "message": "No recent Slack messages found in the channel."}
     return [
-        {"user": message.get("user"), "text": message.get("text"), "timestamp": message.get("ts")} for message in data["messages"]
+        {"user": message.get("user"), "text": message.get("text"), "timestamp": message.get("ts")} for message in messages
         ]
 
