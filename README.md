@@ -145,6 +145,8 @@ consequently learned what to do and what not to do:
 
 Just to add, I am still working on this project, fixing and enhancing its UI and more importantly, hardening the infrastructure layer to make it as production ready and error free as possible in $0, which means that ofcourse I would be exclusively using free tiers of LLM, which would be a major limitation in production.
 
+Furthermore, since this was a comprehensive project, I utilized spec-driven development and AI-assisted coding. I used AI in a read-only 'ask' mode to suggest code based on the codebase, which I manually reviewed and integrated, rather than letting an autonomous agent execute changes directly. You may see separate .md files for progress tracking, specs, and so on.
+
 ## Connect
 
 www.linkedin.com/in/mds970
