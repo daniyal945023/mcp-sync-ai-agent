@@ -1,7 +1,7 @@
 
 
 ## Overview
-  A Multi-Agent Project Management system with multimodal capabilities, which uses one of Groq's vision models(free tier). This system interacts with Github,Slack and Notion all
+  A Multi-Agent Project Management system with multimodal capabilities, which uses the vision model qwen/qwen3.6-27b which is supported on Groq(free tier). This system interacts with Github,Slack and Notion all
   in one place, enabling user to perform common workflows such as writing Github issues, posting Slack messages and updating Notion databases. Further, the user can obtain natural language 
   responses from llm that can read the content your github issues,slack messages and notion database, this app uses token-based authentication to connect these services with the agent
 
@@ -134,12 +134,13 @@ Other than environment related issues in vscode, such as the python interpretor,
 consequently learned what to do and what not to do:
 - In case of no items in Github,Slack or Notion, the tool returned an empty list [], which LLM treated as a failed/inconclusive response, assuming it needed to retry, which led to an infinite tool-calling loop. To fix this, I modified the tools to return an explicit dictionary with a descriptive message, for e.g {"status": "success", "count": 0, "message": "No open GitHub issues found in the repository."}
 - agent was taking proactive escalation actions on read-only queries(e.g "list github issues" led to agent actually creating a new issue), to fix this I tightened system prompt to require explicit user intent or clear trigger match
-- The multi-agent wrapper was returning child-agent results in a format Groq rejected for tool messages. This occured as the supervisor was receiving structured/complex content from delegated child agents instead of a plain text string
-- Fix: normalized child-agent output to a simple string before returning it from the wrapper tool
+- The multi-agent wrapper was returning child-agent results in a format Groq rejected for tool messages. This occured as the supervisor was receiving structured/complex content from delegated child agents instead of a plain text string. To fix this, I normalized child-agent output to a simple string before returning it from the wrapper tool
 -  Groq rate-limit / bad-request failures caused retry storms. Retries were firing immediately on provider errors, consuming quota faster. To fix this, I added explicit handling for rate-limit and bad-request errors, with graceful fallback responses instead of aggressive retry loops
 - The model occasionally emitted malformed tool-call payloads, Groq requires strict payload schema which was corrupted due to nested tool calls. To mitigate this, I lowered temperature to `0.1` and kept tool-call delegation structured for more stable behavior.
 - Nested sub-agent streams caused duplicated/interleaved output. To fix this, I switched from live token streaming to final-message-on-completion, since attributing tokens to the correct sub-agent mid-stream is unreliable with nested runs. Tool-call indicators still stream live, final answer renders as one clean markdown block once the run completes. Then, I added react-markdown + remark-gfm for proper formatting.
 - Implemented a lightweight post-processing layer for speech transcripts to correct common Web Speech API misrecognitions such as "GitHub" → "get hub" and "Slack" → "slap". This normalization runs client-side before the prompt is sent to the agent, improving reliability for voice-driven workflows without adding heavy dependencies.
+- A major UI/streaming related bug:  double-word rendering; setMessages updater was mutating `prev` directly instead of returning new objects; React Strict Mode's double-invocation of updaters exposed it. Fixed by making the updater fully immutable.
+- Fixed placeholder-substitution bug (model was echoing literal <issue_number> instead of using real tool-call results — fixed via explicit "never output placeholder text" instruction in both the runbook resource and system prompt).
 
 
 Just to add, I am still working on this project, fixing and enhancing its UI and more importantly, hardening the infrastructure layer to make it as production ready and error free as possible in $0, which means that ofcourse I would be exclusively using free tiers of LLM, which would be a major limitation in production.
