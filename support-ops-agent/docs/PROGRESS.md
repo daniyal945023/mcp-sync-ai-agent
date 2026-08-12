@@ -118,11 +118,8 @@ Multi-tool MCP server (GitHub/Slack/Notion + resource + prompt) → multi-agent
 LangGraph supervisor → FastAPI SSE gateway → Next.js UI (ConduitAI, responsive, 
 voice in/out, image input) → Clerk auth → persistent per-user chat history.
 
-ERROR: If i send a message, and close the window haphazardly while waiting for llm response, and reopen it, my sent message still appears without any llm response. Ideally, when i reopen the window, my sent message should disappear
-ADDED: I need a delete functionality for a chat session
-ADDED: Web speech api isnt able to accurately "hear" certain words such as Slack and Github
-ERROR: If github issues,notion tracker or slack messages r empty, the llm gets confused
-ERROR: LLM takes very long to execute entire workflow of creating issue,sending msg and updating notion db
+TODO: If i send a message, and close the window haphazardly while waiting for llm response, and reopen it, my sent message still appears without any llm response. Ideally, when i reopen the window, my sent message should disappear
+TODO: LLM takes very long to execute entire workflow of creating issue,sending msg and updating notion db
 
 ## Milestone 9: Docker — NOT STARTED
 ## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED
