@@ -142,7 +142,7 @@ consequently learned what to do and what not to do:
 - Implemented a lightweight post-processing layer for speech transcripts to correct common Web Speech API misrecognitions such as "GitHub" → "get hub" and "Slack" → "slap". This normalization runs client-side before the prompt is sent to the agent, improving reliability for voice-driven workflows without adding heavy dependencies.
 
 
-Just to add, I am still working on this project, fixing and enhancing its UI and more importantly, hardening the infrastructure layer to make it as production ready and error free as possible in $0.
+Just to add, I am still working on this project, fixing and enhancing its UI and more importantly, hardening the infrastructure layer to make it as production ready and error free as possible in $0, which means that ofcourse I would be exclusively using free tiers of LLM, which would be a major limitation in production.
 
 ## Connect
 
