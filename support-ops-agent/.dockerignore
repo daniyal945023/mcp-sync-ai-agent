@@ -1,0 +1,13 @@
+.git/
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+agent/venv/
+agent/.venv/
+backend/venv/
+backend/.venv/
+mcp-server/venv/
+mcp-server/.venv/

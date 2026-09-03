@@ -121,8 +121,21 @@ voice in/out, image input) → Clerk auth → persistent per-user chat history.
 TODO: If i send a message, and close the window haphazardly while waiting for llm response, and reopen it, my sent message still appears without any llm response. Ideally, when i reopen the window, my sent message should disappear
 TODO: LLM takes very long to execute entire workflow of creating issue,sending msg and updating notion db
 
-## Milestone 9: Docker — NOT STARTED
-## Milestone 10: CI/CD (GitHub Actions) — NOT STARTED
+## Milestone 9: Docker — COMPLETE
+- [x] Switched mcp-server transport from stdio to HTTP (`streamable-http`) on `0.0.0.0:8001`
+- [x] Created `mcp-server/Dockerfile`
+- [x] Created `backend/Dockerfile` using root build context & `PYTHONPATH=/app`
+- [x] Created `frontend/Dockerfile` for Next.js app
+- [x] Created root `docker-compose.yml` orchestrating Postgres, mcp-server, backend, and frontend
+- [x] Verified full stack running end-to-end via `docker compose up`
+
+## Milestone 10: CI/CD (GitHub Actions) — IN PROGRESS
+- [x] Added `.github/workflows/ci.yml` pipeline
+- [x] Configured Python dependency & syntax validation jobs
+- [x] Configured Next.js frontend linting job
+- [x] Configured automated Docker container build verification step
+- [ ] Push to GitHub and verify initial green checkmark run
+
 ## Milestone 11: Redis + WebSockets — NOT STARTED
 ## Milestone 12-14: Hardening (logging, tests, security) — NOT STARTED
 ## Milestone 15: Deployment — NOT STARTED

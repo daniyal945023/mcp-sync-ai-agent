@@ -4,19 +4,12 @@ import os
 from pathlib import Path
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-MCP_SERVER_DIR = Path(__file__).parent.parent / "mcp-server"
-MCP_SERVER_PATH = str(MCP_SERVER_DIR / "server.py")
 
-if sys.platform == "win32":
-    MCP_SERVER_PYTHON = str(MCP_SERVER_DIR / "venv" / "Scripts" / "python.exe")
-else:
-    MCP_SERVER_PYTHON = str(MCP_SERVER_DIR / "venv" / "bin" / "python")
 
 client = MultiServerMCPClient({
     "ops": {
-        "command": MCP_SERVER_PYTHON,
-        "args": ["-u", MCP_SERVER_PATH],
-        "transport": "stdio",
+        "transport": "http",
+        "url": os.getenv("MCP_SERVER_URL", "http://localhost:8001/mcp"),
     }
 })
 

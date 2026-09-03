@@ -1,0 +1,220 @@
+# The name displayed for this workflow in GitHub Actions.
+name: CI Pipeline
+
+# These events decide when GitHub runs the workflow.
+on:
+  # Run the workflow after code is pushed.
+  push:
+    # Only run automatically for pushes to the main branch.
+    branches:
+      - main
+
+  # Run the workflow when a pull request targets main.
+  pull_request:
+    # Only check pull requests that are intended for main.
+    branches:
+      - main
+
+  # Allow you to manually start the workflow from GitHub.
+  workflow_dispatch:
+
+# Prevent unnecessary duplicate workflow runs.
+concurrency:
+  # Use the workflow name and branch or PR number as the group name.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+
+  # Cancel an older run when a newer commit is pushed.
+  cancel-in-progress: true
+
+# Limit what the workflow is allowed to do.
+permissions:
+  # Allow the checkout action to read the repository.
+  contents: read
+
+# A workflow contains one or more jobs.
+jobs:
+  # This job validates the Python code and dependencies.
+  python-checks:
+    # This is the name shown in the GitHub Actions interface.
+    name: Python checks
+
+    # Run this job on GitHub's latest Ubuntu runner.
+    runs-on: ubuntu-latest
+
+    # The individual tasks in this job.
+    steps:
+      # Download the repository into the temporary runner machine.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Install the required Python version.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # Match the Python version used by your Dockerfiles.
+          python-version: "3.12"
+
+          # Cache downloaded pip packages to make later runs faster.
+          cache: pip
+
+          # Tell the cache which dependency files matter.
+          cache-dependency-path: |
+            agent/requirements.txt
+            backend/requirements.txt
+            mcp-server/requirements.txt
+
+      # Install all Python dependencies used by this project.
+      - name: Install Python dependencies
+        run: |
+          # Upgrade pip before installing project packages.
+          python -m pip install --upgrade pip
+
+          # Install dependencies for the LangGraph agent.
+          python -m pip install -r agent/requirements.txt
+
+          # Install dependencies for the FastAPI backend.
+          python -m pip install -r backend/requirements.txt
+
+          # Install dependencies for the MCP server.
+          python -m pip install -r mcp-server/requirements.txt
+
+      # Check whether installed packages have incompatible requirements.
+      - name: Check Python dependencies
+        run: |
+          # pip check exits with an error if package requirements conflict.
+          python -m pip check
+
+      # Compile Python files to detect syntax errors.
+      - name: Check Python syntax
+        run: |
+          # compileall checks every Python file in these application folders.
+          python -m compileall -q agent backend mcp-server
+
+  # This job checks and builds the Next.js frontend.
+  frontend-checks:
+    # This is the name displayed for the frontend job.
+    name: Frontend checks
+
+    # Run this job on GitHub's latest Ubuntu runner.
+    runs-on: ubuntu-latest
+
+    # The individual frontend tasks.
+    steps:
+      # Download the repository into the runner.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Install Node.js for the Next.js application.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Use the same major Node version expected by the project.
+          node-version: "20"
+
+          # Cache npm's downloaded packages.
+          cache: npm
+
+          # Use this lockfile to calculate the cache key.
+          cache-dependency-path: frontend/package-lock.json
+
+      # Install exactly the dependency versions recorded in package-lock.json.
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Run ESLint to detect frontend code problems.
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      # Build the frontend as a production Next.js application.
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          # The public Clerk key is needed by Clerk during the Next.js build.
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: npm run build
+
+  # This job verifies that all three Docker images can be built.
+  docker-builds:
+    # This is the name shown in GitHub Actions.
+    name: Docker image builds
+
+    # Docker is available on GitHub's Ubuntu runners.
+    runs-on: ubuntu-latest
+
+    # The individual Docker tasks.
+    steps:
+      # Download the repository so Docker can access the Dockerfiles.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Install Docker Buildx, which provides modern Docker build features.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build the MCP server image without pushing it to a registry.
+      - name: Build MCP server image
+        uses: docker/build-push-action@v6
+        with:
+          # Use the MCP server folder as the Docker build context.
+          context: ./mcp-server
+
+          # Use the Dockerfile inside the MCP server folder.
+          file: ./mcp-server/Dockerfile
+
+          # Build the image but do not publish it anywhere.
+          push: false
+
+          # Give the temporary image a recognizable name.
+          tags: conduit-mcp:ci
+
+          # Reuse GitHub Actions cache data when available.
+          cache-from: type=gha
+
+          # Save new build cache data for future workflow runs.
+          cache-to: type=gha,mode=max
+
+      # Build the backend image without pushing it to a registry.
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          # The backend Dockerfile needs files from the repository root.
+          context: .
+
+          # Point Docker to the backend Dockerfile.
+          file: ./backend/Dockerfile
+
+          # Do not publish this CI-only image.
+          push: false
+
+          # Give the temporary image a recognizable name.
+          tags: conduit-backend:ci
+
+          # Reuse previously cached Docker layers.
+          cache-from: type=gha
+
+          # Store newly created Docker layers in GitHub's cache.
+          cache-to: type=gha,mode=max
+
+      # Build the frontend image without pushing it to a registry.
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          # Use the frontend folder as the Docker build context.
+          context: ./frontend
+
+          # Use the frontend Dockerfile.
+          file: ./frontend/Dockerfile
+
+          # Do not publish this CI-only image.
+          push: false
+
+          # Give the temporary image a recognizable name.
+          tags: conduit-frontend:ci
+
+          # Reuse previously cached Docker layers.
+          cache-from: type=gha
+
+          # Store newly created Docker layers in GitHub's cache.
+          cache-to: type=gha,mode=max
