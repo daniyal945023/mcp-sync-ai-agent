@@ -3,7 +3,7 @@ import tools_github as gh
 import tools_slack as slack
 import tools_notion as notion
 from fastmcp.prompts import Message
-
+import os
 
 mcp = FastMCP("Server Ops MCP")
 
@@ -93,4 +93,5 @@ Steps:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=8001)
+    port = int(os.getenv("PORT", "8001"))
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=port)

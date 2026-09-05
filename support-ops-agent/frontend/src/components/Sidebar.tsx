@@ -1,5 +1,8 @@
 "use client";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 import { useState, useEffect, useCallback } from "react";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Plus, MessageSquare, Menu, X, Trash2 } from "lucide-react";
@@ -30,7 +33,7 @@ export default function Sidebar({
     async function loadThreads() {
       try {
         const token = await getToken();
-        const res = await fetch("http://localhost:8000/threads", {
+        const res = await fetch(`${API_URL}/threads`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok && !isCancelled) {

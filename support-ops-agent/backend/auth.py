@@ -11,14 +11,16 @@ parent_dir = current_dir.parent
 env_path = parent_dir / ".env"
 
 load_dotenv(dotenv_path=env_path)
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 clerk_sdk = Clerk(bearer_auth=os.environ["CLERK_SECRET_KEY"])
+
 
 def get_current_user_id(request: Request):
     request_state = clerk_sdk.authenticate_request(
         request,
         AuthenticateRequestOptions(
-            authorized_parties=["http://localhost:3000"]  # only trust our frontend's origin
+            authorized_parties=[FRONTEND_URL]  # only trust our frontend's origin
         )
     )
 

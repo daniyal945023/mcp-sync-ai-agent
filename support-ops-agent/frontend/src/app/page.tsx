@@ -1,5 +1,8 @@
 "use client";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 import { useState, useRef, useEffect } from "react";
 import { Mic, ArrowUp, FileStack, AlertTriangle, MessagesSquare } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
@@ -16,6 +19,7 @@ import { Paperclip, X } from "lucide-react";
 import Image from 'next/image'
 import { FaGithub, FaSlack } from 'react-icons/fa6';
 import { SiNotion } from 'react-icons/si';
+
 
 
 type ToolEvent = { name: string; status: "running" | "done" };
@@ -151,7 +155,7 @@ async function selectThread(threadId: string) {
   setActiveThreadId(threadId);
 
   const token = await getToken();
-  const res = await fetch(`http://localhost:8000/threads/${threadId}/messages`, {
+  const res = await fetch(`${API_URL}/threads/${threadId}/messages`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.ok) {
@@ -168,7 +172,7 @@ useEffect(() => {
     try {
       const token = await getToken();
       if (!token) return;
-      const res = await fetch(`http://localhost:8000/threads/${activeThreadId}/messages`, {
+      const res = await fetch(`${API_URL}/threads/${activeThreadId}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -204,7 +208,7 @@ console.error("Failed to load thread history:", error);
 
   const token = await getToken();
 
-  const response = await fetch("http://localhost:8000/chat/stream", {
+  const response = await fetch(`${API_URL}/chat/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
@@ -295,7 +299,7 @@ function normalizeContent(content: unknown): string {
 
 async function deleteThread(threadId: string) {
   const token = await getToken();
-  const res = await fetch(`http://localhost:8000/threads/${threadId}`, {
+  const res = await fetch(`${API_URL}/threads/${threadId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
