@@ -56,6 +56,12 @@ jobs:
 
       - name: Run Python tests
         working-directory: support-ops-agent
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          CLERK_SECRET_KEY: sk_test_ci_placeholder
+          FRONTEND_URL: http://localhost:3000
+          MCP_SERVER_URL: http://localhost:8001/mcp
+          GROQ_API_KEY: gsk_test_ci_placeholder
         run: |
           python -m pytest tests -v
 
