@@ -134,9 +134,21 @@ TODO: LLM takes very long to execute entire workflow of creating issue,sending m
 - [x] Configured Python dependency & syntax validation jobs
 - [x] Configured Next.js frontend linting job
 - [x] Configured automated Docker container build verification step
-- [ ] Push to GitHub and verify initial green checkmark run
+- [x] Push to GitHub and verify initial green checkmark run
+
+
+
 
 ## Milestone 11: Redis + WebSockets — NOT STARTED
 ## Milestone 12-14: Hardening (logging, tests, security) — NOT STARTED
-## Milestone 15: Deployment — NOT STARTED
+## Milestone 15: Deployment
+- [x] Replaced localhost with production url placeholders
+- [x] Deployed Postgres Database to Supabase
+- [x] Deployed Backend and MCP on Render as Web Services
+- [x] Deployed NextJS Frontend on Vercel
+
+
+
+
+
 ## Milestone 16-18: Rate limiting, billing demo, load testing — NOT STARTED

@@ -147,6 +147,27 @@ Just to add, I am still working on this project, fixing and enhancing its UI and
 
 Furthermore, since this was a comprehensive project, I utilized spec-driven development and AI-assisted coding. I used AI in a read-only 'ask' mode to suggest code based on the codebase, which I manually reviewed and integrated, rather than letting an autonomous agent execute changes directly. You may see separate .md files for progress tracking, specs, and so on.
 
+## Deployment Challenges
+
+### CI/CD & Repository Layout
+- **Actions Path:** Moved `.github/workflows/` to repository root to fix detection. Adjusted internal paths inside `ci.yml` to target the subfolder `support-ops-agent`.
+- **Dependency Conflicts:** Fixed version mismatches caught by `pip check` in CI by pinning compatible builds (`websockets==15.0.1` for `langgraph-sdk`/`mcp-server` and `cryptography==48.0.1` for `clerk-backend-api`).
+
+### Containerization & Docker
+- **Port Clashes:** Remapped local PostgreSQL host port (`5433:5432`) to resolve local environment collisions.
+- **Compose Consolidation:** Standardized on root `docker-compose.yml` to spin up the entire stack (PostgreSQL, MCP Server, Backend, Frontend) concurrently.
+- **Render Build Contexts:** Explicitly targeted `support-ops-agent/mcp-server` for MCP build contexts, while keeping `support-ops-agent` root for the backend Dockerfile.
+
+### Cloud Hosting & Production Setup (Render, Vercel, Supabase)
+- **Dynamic Port Assignment:** Updated MCP server to consume `PORT = int(os.getenv("PORT", "8001"))` to comply with Render's assigned port bindings.
+- **Cold Starts:** Solved Render free-tier 502 Bad Gateway errors during backend initialization by implementing strict boot ordering (MCP server live → backend deploy).
+- **Connection Pooling:** Scaled down `asyncpg` pool sizes (`min_size=1, max_size=3`) to stay within Supabase free-tier limits.
+- **CORS & Environment Dynamic Mapping:** Replaced hardcoded `localhost` calls on Vercel with `NEXT_PUBLIC_API_URL` and ensured `FRONTEND_URL` in backend CORS configuration included full explicit protocols (`https://`).
+- **Auth Alignment:** Synchronized Clerk production keys across Vercel (Publishable) and Render (Secret), configuring `authorized_parties` to allow deployment domain requests.
+
+### Future Improvements
+- **Tenant Isolation:** Transitioning from global integration keys (GitHub, Slack, Notion) to user-owned OAuth connections.
+
 ## Connect
 
 www.linkedin.com/in/mds970
