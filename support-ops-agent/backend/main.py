@@ -40,7 +40,12 @@ async def lifespan(app: FastAPI):
     checkpointer = await checkpointer_cm.__aenter__()
     await checkpointer.setup()   # creates the checkpoint tables on first run — safe to call every startup, it's idempotent
     graph = await build_graph(checkpointer=checkpointer)
-    db_pool = await asyncpg.create_pool(DATABASE_URL)
+    db_pool = await asyncpg.create_pool(
+    DATABASE_URL,
+    min_size=1,
+    max_size=3,
+    timeout=30,
+)
     async with db_pool.acquire() as conn:
         await conn.execute(
             """CREATE TABLE IF NOT EXISTS threads (
