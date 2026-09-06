@@ -4,10 +4,19 @@ import json
 from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import Depends, HTTPException, Response, status
-from auth import get_current_user_id
+
+try:
+    from .auth import get_current_user_id
+except ImportError:
+    from auth import get_current_user_id
+
 import asyncpg
 from langchain_core.messages import HumanMessage, AIMessage
 
+try:
+    from .utils import normalize_content, ensure_thread_access
+except ImportError:
+    from utils import normalize_content, ensure_thread_access
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "agent"))
 
@@ -66,24 +75,7 @@ async def lifespan(app: FastAPI):
     await checkpointer_cm.__aexit__(None, None, None)
 
 
-def normalize_content(content):
-    if isinstance(content, str):
-        return content
 
-    if isinstance(content, dict):
-        if content.get("type") == "text" and isinstance(content.get("text"), str):
-            return content["text"]
-        if isinstance(content.get("text"), str):
-            return content["text"]
-        return json.dumps(content, ensure_ascii=False)
-
-    if isinstance(content, list):
-        for item in content:
-            if isinstance(item, dict) and item.get("type") == "text" and isinstance(item.get("text"), str):
-                return item["text"]
-        return json.dumps(content, ensure_ascii=False)
-
-    return str(content)
 
 app = FastAPI(lifespan=lifespan)
 
@@ -99,22 +91,21 @@ class ChatRequest(BaseModel):
     thread_id: str
     image: str | None = None
 
+
+
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest, user_id: str = Depends(get_current_user_id)):
     config = {"configurable": {"thread_id": req.thread_id}}
 
 
-
+#added AND user_id to check authenticated user
     async with db_pool.acquire() as conn:
-        existing = await conn.fetchrow(
-            "SELECT thread_id from threads where thread_id = $1", req.thread_id
+        await ensure_thread_access(
+            db_pool,
+            req.thread_id,
+            user_id,
+            req.message[:50],
         )
-        if not existing:
-            title = req.message[:50] + ("..." if len(req.message) > 50 else "")
-            await conn.execute(
-                "INSERT INTO threads (thread_id, user_id, title) VALUES ($1, $2, $3)",
-                req.thread_id, user_id, title,
-            )
 
     if req.image:
         content = [

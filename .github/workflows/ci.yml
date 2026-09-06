@@ -54,6 +54,11 @@ jobs:
             support-ops-agent/backend \
             support-ops-agent/mcp-server
 
+      - name: Run Python tests
+        working-directory: support-ops-agent
+        run: |
+          python -m pytest tests -v
+
   frontend-checks:
     name: Frontend checks
     runs-on: ubuntu-latest
