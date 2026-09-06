@@ -27,6 +27,13 @@ env_path = parent_dir / ".env"
 load_dotenv(dotenv_path=env_path)
 DATABASE_URL = os.environ["DATABASE_URL"]
 
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:3000",
+)
+
+
+
 graph = None
 checkpointer_cm = None
 #new
@@ -82,7 +89,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_URL],
     allow_methods=["*"],
     allow_headers=["*"],
 )
