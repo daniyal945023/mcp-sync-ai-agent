@@ -52,14 +52,14 @@ export default function Sidebar({
   }, [getToken, refreshTrigger]);
 
 
-  const content = (
-    <div className="flex flex-col h-full bg-[#0E0E12] text-zinc-300 w-64 p-4">
-      <div className="flex items-center justify-between mb-6">
-        <span className="text-lg font-semibold tracking-tight transition-all duration-300 bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent cursor-default">
-          ProjectManagerAI
+    const content = (
+    <div className="flex h-full w-64 flex-col bg-[radial-gradient(circle_at_top,_rgba(255,122,76,0.18),_transparent_26%),linear-gradient(180deg,#090b0f_0%,#0d0f14_42%,#0b0d12_100%)] p-4 text-zinc-300">
+      <div className="mb-6 flex items-center justify-between">
+        <span className="cursor-default bg-gradient-to-r from-[#ff9a67] via-[#ff784d] to-[#ff5f35] bg-clip-text text-lg font-semibold tracking-tight text-transparent">
+          Lumix AI
         </span>
         <button
-          className="md:hidden text-zinc-400 hover:text-white transition-colors"
+          className="text-zinc-400 transition-colors hover:text-white md:hidden"
           onClick={() => setOpen(false)}
         >
           <X size={20} />
@@ -68,27 +68,29 @@ export default function Sidebar({
 
       <button
         onClick={onNewChat}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors mb-6"
+        className="mb-6 flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#ff8d5d] to-[#ff5b37] px-3 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(255,110,62,0.5)] transition hover:brightness-110"
       >
         <Plus size={16} />
         New Chat
       </button>
 
-      <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2 px-1">
+      <div className="mb-2 px-1 text-xs uppercase tracking-[0.2em] text-zinc-500">
         Recent
       </div>
-      <div className="flex flex-col gap-1 overflow-y-auto">
+
+      <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
         {threads.length === 0 && (
-          <div className="text-xs text-zinc-600 px-3 py-2">No conversations yet</div>
+          <div className="px-3 py-2 text-xs text-zinc-600">No conversations yet</div>
         )}
 
         {threads.map((t) => (
           <div
             key={t.thread_id}
-            className={`flex min-w-0 items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${t.thread_id === activeThreadId
-                ? "bg-white/10 text-white"
+            className={`flex min-w-0 items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm transition-colors ${
+              t.thread_id === activeThreadId
+                ? "bg-white/8 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
                 : "text-zinc-400 hover:bg-white/5 hover:text-white"
-              }`}
+            }`}
           >
             <button
               type="button"
@@ -98,10 +100,8 @@ export default function Sidebar({
               }}
               className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-left"
             >
-              
-                <MessageSquare size={14} className="shrink-0" />
-                <span className="min-w-0 whitespace-nowrap truncate">{t.title}</span>
-              
+              <MessageSquare size={14} className="shrink-0" />
+              <span className="min-w-0 truncate whitespace-nowrap">{t.title}</span>
             </button>
 
             <button
@@ -112,16 +112,16 @@ export default function Sidebar({
                   onDeleteThread(t.thread_id);
                 }
               }}
-              className="shrink-0 text-zinc-400 hover:text-rose-400"
+              className="shrink-0 text-zinc-400 transition hover:text-rose-400"
               aria-label={`Delete conversation ${t.title}`}
             >
               <Trash2 size={16} />
             </button>
           </div>
         ))}
-
       </div>
-      <div className="mt-auto pt-4 border-t border-white/10">
+
+      <div className="mt-auto border-t border-white/10 pt-4">
         <UserButton />
       </div>
     </div>

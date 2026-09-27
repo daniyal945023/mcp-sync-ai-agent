@@ -338,8 +338,8 @@ function normalizeVoiceTranscript(text: string): string {
   return cleaned;
 }
 
-    return (
-    <div className="flex h-screen bg-[#0b0b0d] text-white">
+     return (
+    <div className="flex h-screen overflow-hidden bg-[#0a0b0d] text-white">
       <Sidebar
         onNewChat={newChat}
         onSelectThread={selectThread}
@@ -349,12 +349,12 @@ function normalizeVoiceTranscript(text: string): string {
       />
 
       <div className="relative flex-1 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,109,58,0.18),_transparent_28%),radial-gradient(circle_at_75%_20%,_rgba(255,130,80,0.16),_transparent_24%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,123,70,0.24),_transparent_28%),radial-gradient(circle_at_50%_10%,_rgba(255,118,68,0.14),_transparent_18%)]" />
 
-        <div className="relative flex h-full flex-col">
+        <div className="relative z-10 flex h-full flex-col">
           <header className="flex items-center justify-between px-6 pt-6 pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#ff9b66] via-[#ff6f42] to-[#ff4d2d] font-black text-white shadow-[0_0_26px_rgba(255,106,61,0.8)]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#ff9d67] via-[#ff6f42] to-[#ff4f2b] text-sm font-black text-white shadow-[0_0_22px_rgba(255,104,62,0.8)]">
                 A
               </div>
               <span className="text-lg font-semibold tracking-[-0.05em] text-white">
@@ -373,7 +373,7 @@ function normalizeVoiceTranscript(text: string): string {
               <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 transition hover:border-[#ff7a52]/40 hover:text-white">
                 Sign In
               </button>
-              <button className="rounded-full bg-gradient-to-r from-[#ff8d5e] to-[#ff5b38] px-4 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(255,92,58,0.55)] transition hover:brightness-110">
+              <button className="rounded-full bg-gradient-to-r from-[#ff8b5c] to-[#ff5a37] px-4 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(255,92,58,0.55)] transition hover:brightness-110">
                 Get Started
               </button>
             </div>
@@ -382,66 +382,69 @@ function normalizeVoiceTranscript(text: string): string {
           <div className="flex-1 overflow-y-auto px-4 md:px-8">
             {!hasMessages ? (
               <div className="mx-auto flex h-full max-w-5xl flex-col items-center justify-center text-center">
-                <h1 className="mb-3 text-4xl font-semibold tracking-[-0.08em] text-white md:text-6xl">
+                <h1 className="mb-3 text-4xl font-semibold tracking-[-0.08em] text-white md:text-7xl">
                   Experience the Next Era of AI Productivity.
                 </h1>
 
-                <p className="mb-10 max-w-2xl text-sm text-zinc-300 md:text-lg">
+                <p className="mb-8 max-w-2xl text-sm text-zinc-300 md:text-lg">
                   Build smarter workflows effortlessly. Connect AI to automate tasks,
                   and boost productivity in a sleek, modern workspace.
                 </p>
 
-                <div className="hero-shell mx-auto w-full max-w-5xl rounded-[32px] border border-[#ff7d55]/30 bg-[#0d0d10]/90 p-4 shadow-[0_0_80px_rgba(255,105,56,0.2)] backdrop-blur-xl">
-                  <div className="glass-panel relative overflow-hidden rounded-[26px] border border-white/10 bg-[#0a0d12]/90 p-4">
-                    <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,110,60,0.9),_rgba(255,110,60,0.24)_26%,_transparent_68%)] blur-2xl" />
+                <div className="relative w-full max-w-5xl">
+                  <div className="pointer-events-none absolute -top-16 left-1/2 h-44 w-44 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,120,65,0.96),_rgba(255,120,65,0.4)_26%,_transparent_68%)] blur-2xl" />
+                  <div className="rounded-[30px] border border-[#ff7d55]/30 bg-[#0a0d12]/90 p-4 shadow-[0_0_80px_rgba(255,110,60,0.18)] backdrop-blur-xl">
+                    <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#070a0f]/85 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                      <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,130,72,0.9),_rgba(255,130,72,0.2)_30%,_transparent_68%)] blur-[30px]" />
 
-                    <div className="relative flex items-center gap-3 rounded-[18px] border border-white/10 bg-[#111418]/80 px-4 py-3 shadow-inner shadow-black/30">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#1a1d22] text-[#ff9a61]">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <circle cx="11" cy="11" r="6" />
-                          <path d="M16 16L21 21" />
-                        </svg>
+                      <div className="relative flex items-center gap-3 rounded-[16px] border border-white/10 bg-[#111316]/90 px-4 py-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#191d22] text-[#ff9a63]">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="6" />
+                            <path d="M16 16L21 21" />
+                          </svg>
+                        </div>
+
+                        <input
+                          value={inputValue}
+                          onChange={(e) => setInput(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                          placeholder="Ask me anything, press '/' to prompt"
+                          disabled={isStreaming}
+                          className="flex-1 border-none bg-transparent text-base text-zinc-200 placeholder:text-zinc-500 outline-none"
+                        />
+
+                        <button
+                          onClick={() => sendMessage()}
+                          disabled={isStreaming}
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#ffba7e] via-[#ff7d52] to-[#ff5b38] text-white shadow-[0_0_24px_rgba(255,120,74,0.85)] transition hover:scale-105 disabled:opacity-40"
+                        >
+                          <ArrowUp size={18} />
+                        </button>
                       </div>
 
-                      <input
-                        value={inputValue}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                        placeholder="Ask me anything, press '/' to prompt"
-                        disabled={isStreaming}
-                        className="flex-1 border-none bg-transparent text-base text-zinc-200 placeholder:text-zinc-500 outline-none"
-                      />
-
-                      <button
-                        onClick={() => sendMessage()}
-                        disabled={isStreaming}
-                        className="glow-orb flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#ffb07a] via-[#ff7d52] to-[#ff5b38] text-white shadow-[0_0_24px_rgba(255,120,74,0.85)] transition hover:scale-105 disabled:opacity-40"
-                      >
-                        <ArrowUp size={18} />
-                      </button>
-                    </div>
-
-                    <div className="relative mt-4 flex items-center justify-between px-2 text-[11px] text-zinc-400">
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">%</span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">⌘</span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">✦</span>
-                      </div>
-                      <div className="rounded-full border border-white/10 bg-white/5 px-2 py-1">
-                        GPT-4
+                      <div className="relative mt-4 flex items-center justify-between px-2 text-[11px] text-zinc-400">
+                        <div className="flex items-center gap-3">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">%</span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">⌘</span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">✦</span>
+                        </div>
+                        <div className="rounded-full border border-white/10 bg-white/5 px-2 py-1">
+                          GPT-4
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="max-w-2xl mx-auto py-8 space-y-6">
+              <div className="mx-auto max-w-2xl py-8 space-y-6">
                 {messages.map((msg, i) => (
                   <div key={i} className={msg.role === "user" ? "text-right" : "text-left"}>
                     {msg.tools && msg.tools.length > 0 && (
-                      <div className="text-xs text-zinc-400 mb-1 space-x-2">
+                      <div className="mb-1 text-xs text-zinc-400">
                         {msg.tools.map((t, j) => (
-                          <span key={j} className="inline-flex items-center gap-1">
+                          <span key={j} className="mr-2 inline-flex items-center gap-1">
                             <span
                               className={
                                 t.status === "running"
@@ -461,12 +464,12 @@ function normalizeVoiceTranscript(text: string): string {
                       className={`inline-block max-w-lg rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                         msg.role === "user"
                           ? "bg-gradient-to-r from-[#ff8b5e] to-[#ff5d38] text-white shadow-[0_0_24px_rgba(255,105,56,0.4)]"
-                          : "bg-[#121519] text-zinc-100 border border-white/8"
+                          : "border border-white/8 bg-[#101419] text-zinc-100"
                       }`}
                     >
                       {msg.role === "assistant" ? (
                         msg.content ? (
-                          <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-invert">
+                          <div className="prose prose-sm max-w-none prose-invert prose-p:my-1 prose-headings:my-2">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                           </div>
                         ) : (
@@ -492,7 +495,22 @@ function normalizeVoiceTranscript(text: string): string {
               </div>
             )}
 
-            <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-white/10 bg-[#111318]/90 px-4 py-2 shadow-[0_0_26px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+            <div className="mx-auto flex max-w-5xl items-center gap-2 rounded-[20px] border border-white/10 bg-[#101317]/90 px-4 py-2 shadow-[0_0_26px_rgba(0,0,0,0.38)] backdrop-blur-sm">
+              <button
+                onClick={toggleListening}
+                disabled={isClient ? !browserSupportsSpeechRecognition : true}
+                className={`rounded-full p-2 transition-colors ${
+                  listening ? "text-[#ff8e64]" : "text-zinc-400 hover:text-[#ff8e64]"
+                }`}
+                title={
+                  isClient && browserSupportsSpeechRecognition
+                    ? "Voice input"
+                    : "Not supported in this browser"
+                }
+              >
+                <Mic size={18} />
+              </button>
+
               <input
                 className="flex-1 border-none bg-transparent text-sm text-white placeholder:text-zinc-500 outline-none"
                 value={inputValue}
@@ -519,21 +537,6 @@ function normalizeVoiceTranscript(text: string): string {
                   </button>
                 </div>
               )}
-
-              <button
-                onClick={toggleListening}
-                disabled={isClient ? !browserSupportsSpeechRecognition : true}
-                className={`transition-colors ${
-                  listening ? "text-[#ff8e64]" : "text-zinc-400 hover:text-[#ff8e64]"
-                }`}
-                title={
-                  isClient && browserSupportsSpeechRecognition
-                    ? "Voice input"
-                    : "Not supported in this browser"
-                }
-              >
-                <Mic size={18} />
-              </button>
 
               <button
                 onClick={() => setVoiceEnabled((v) => !v)}
