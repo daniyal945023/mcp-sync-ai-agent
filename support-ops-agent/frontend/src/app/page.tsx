@@ -447,16 +447,7 @@ function normalizeVoiceTranscript(text: string): string {
                         </button>
                       </div>
 
-                      <div className="relative flex items-center justify-between px-2 text-[11px] text-zinc-500">
-                        <div className="flex items-center gap-3">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">%</span>
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">⌘</span>
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">✦</span>
-                        </div>
-                        <div className="rounded-full border border-[#9c3d36]/60 bg-[#1a1c20] px-2 py-1 text-zinc-300">
-                          GPT-4
-                        </div>
-                      </div>
+                     
                     </div>
                   </div>
                 </div>
