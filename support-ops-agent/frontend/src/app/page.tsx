@@ -339,7 +339,7 @@ function normalizeVoiceTranscript(text: string): string {
 }
 
      return (
-    <div className="flex h-screen overflow-hidden bg-[#0b090d] text-white">
+    <div className="flex h-screen overflow-hidden bg-[#09090c] text-white">
       <Sidebar
         onNewChat={newChat}
         onSelectThread={selectThread}
@@ -349,39 +349,12 @@ function normalizeVoiceTranscript(text: string): string {
       />
 
       <div className="relative flex-1 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(150,35,32,0.35),_transparent_28%),radial-gradient(circle_at_50%_10%,_rgba(255,92,60,0.18),_transparent_18%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(164,35,31,0.30),_transparent_30%),radial-gradient(circle_at_50%_10%,_rgba(255,92,56,0.16),_transparent_18%)]" />
 
         <div className="relative z-10 flex h-full flex-col">
-          <header className="flex items-center justify-between px-6 pt-6 pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#ff9d6b] via-[#e64a39] to-[#7d1b1b] text-sm font-black text-white shadow-[0_0_22px_rgba(188,48,35,0.9)]">
-                A
-              </div>
-              <span className="text-lg font-semibold tracking-[-0.05em] text-white">
-                Lumix AI
-              </span>
-            </div>
-
-            <nav className="hidden items-center gap-7 text-sm text-zinc-300 md:flex">
-              <a href="#" className="transition hover:text-white">Home</a>
-              <a href="#" className="transition hover:text-white">Features</a>
-              <a href="#" className="transition hover:text-white">Workflow</a>
-              <a href="#" className="transition hover:text-white">Pricing</a>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <button className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 transition hover:border-[#ff7a52]/40 hover:text-white">
-                Sign In
-              </button>
-              <button className="rounded-full bg-gradient-to-r from-[#f36b46] to-[#8d1e1e] px-4 py-2 text-sm font-medium text-white shadow-[0_0_24px_rgba(153,31,28,0.6)] transition hover:brightness-110">
-                Get Started
-              </button>
-            </div>
-          </header>
-
           <div className="flex-1 overflow-y-auto px-4 md:px-8">
             {!hasMessages ? (
-              <div className="mx-auto flex h-full max-w-5xl flex-col items-center justify-center text-center">
+              <div className="mx-auto flex h-full max-w-6xl flex-col items-center justify-center text-center">
                 <h1 className="mb-3 text-4xl font-semibold tracking-[-0.08em] text-white md:text-7xl">
                   Experience the Next Era of AI Productivity.
                 </h1>
@@ -391,15 +364,49 @@ function normalizeVoiceTranscript(text: string): string {
                   and boost productivity in a sleek, modern workspace.
                 </p>
 
-                <div className="relative mt-4 w-full max-w-5xl">
-                  <div className="pointer-events-none absolute -top-16 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,111,73,0.95),_rgba(220,60,45,0.34)_26%,_transparent_68%)] blur-[54px]" />
+                <div className="relative w-full max-w-5xl">
+                  <div className="pointer-events-none absolute left-1/2 top-[-40px] h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,130,87,0.95),_rgba(255,92,52,0.42)_25%,_transparent_68%)] blur-[46px]" />
 
-                  <div className="rounded-[30px] border border-[#8d2d29]/50 bg-[#0a0d12]/90 p-4 shadow-[0_0_100px_rgba(127,23,20,0.24)] backdrop-blur-xl">
-                    <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#070a0f]/85 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                      <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,123,71,0.9),_rgba(255,123,71,0.22)_28%,_transparent_68%)] blur-[26px]" />
+                  <div className="relative mx-auto max-w-5xl">
+                    <div className="relative overflow-hidden rounded-[28px] border border-[#a2362a]/60 bg-[#0a0d12]/95 p-3 shadow-[0_0_80px_rgba(123,19,18,0.28)]">
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8d62]/80 to-transparent" />
+                      <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,137,84,0.95),_rgba(255,93,56,0.25)_28%,_transparent_68%)] blur-[28px]" />
 
-                      <div className="relative h-[150px] rounded-[16px] border border-white/8 bg-[radial-gradient(circle_at_center,_rgba(255,120,75,0.08),_rgba(17,17,20,0.96)_55%,_rgba(8,10,12,1)_100%)]">
-                        <div className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#ff9e6a]/80 bg-[radial-gradient(circle,_rgba(255,170,120,0.85),_rgba(255,105,60,0.95)_38%,_rgba(120,18,17,0.9)_100%)] shadow-[0_0_26px_rgba(255,96,58,0.9)]" />
+                      <div className="relative mb-3 flex items-center gap-3 rounded-[16px] border border-white/10 bg-[#111316]/90 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#1a1d22] text-[#ff9f7d]">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="6" />
+                            <path d="M16 16L21 21" />
+                          </svg>
+                        </div>
+
+                        <input
+                          value={inputValue}
+                          onChange={(e) => setInput(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                          placeholder="Ask me anything, press '/' for prompt"
+                          disabled={isStreaming}
+                          className="flex-1 border-none bg-transparent text-base text-zinc-200 placeholder:text-zinc-500 outline-none"
+                        />
+
+                        <button
+                          onClick={() => sendMessage()}
+                          disabled={isStreaming}
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#ffbe94] via-[#ff7c56] to-[#c3302a] text-white shadow-[0_0_24px_rgba(198,48,34,0.8)] transition hover:scale-105 disabled:opacity-40"
+                        >
+                          <ArrowUp size={18} />
+                        </button>
+                      </div>
+
+                      <div className="relative flex items-center justify-between px-2 text-[11px] text-zinc-500">
+                        <div className="flex items-center gap-3">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">%</span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">⌘</span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">✦</span>
+                        </div>
+                        <div className="rounded-full border border-[#9c3d36]/60 bg-[#1a1c20] px-2 py-1 text-zinc-300">
+                          GPT-4
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -431,7 +438,7 @@ function normalizeVoiceTranscript(text: string): string {
                     <div
                       className={`inline-block max-w-lg rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-gradient-to-r from-[#ef5d3d] to-[#8d1e1e] text-white shadow-[0_0_24px_rgba(134,32,28,0.55)]"
+                          ? "bg-gradient-to-r from-[#ec6038] to-[#7e1d1f] text-white shadow-[0_0_24px_rgba(131,26,25,0.5)]"
                           : "border border-white/8 bg-[#101419] text-zinc-100"
                       }`}
                     >
@@ -454,85 +461,91 @@ function normalizeVoiceTranscript(text: string): string {
             )}
           </div>
 
-          <div className="px-4 pb-6 md:px-8">
-            {(listening || isSpeaking) && (
-              <div className="mb-3 flex justify-center">
-                <VoiceOrb
-                  state={listening ? "listening" : isSpeaking ? "speaking" : "idle"}
-                />
-              </div>
-            )}
+          {!hasMessages && (
+            <div className="px-4 pb-6 md:px-8" />
+          )}
 
-            <div className="mx-auto flex max-w-5xl items-center gap-2 rounded-[20px] border border-[#8d2d29]/60 bg-[#101317]/90 px-4 py-2 shadow-[0_0_26px_rgba(0,0,0,0.38)] backdrop-blur-sm">
-              <button
-                onClick={toggleListening}
-                disabled={isClient ? !browserSupportsSpeechRecognition : true}
-                className={`rounded-full p-2 transition-colors ${
-                  listening ? "text-[#ff8e64]" : "text-zinc-400 hover:text-[#ff8e64]"
-                }`}
-                title={
-                  isClient && browserSupportsSpeechRecognition
-                    ? "Voice input"
-                    : "Not supported in this browser"
-                }
-              >
-                <Mic size={18} />
-              </button>
-
-              <input
-                className="flex-1 border-none bg-transparent text-sm text-white placeholder:text-zinc-500 outline-none"
-                value={inputValue}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder="Type your prompt here"
-                disabled={isStreaming}
-              />
-
-              {pendingImage && (
-                <div className="relative w-fit">
-                  <Image
-                    src={pendingImage}
-                    alt="attached"
-                    width={200}
-                    height={200}
-                    className="h-16 rounded-lg border border-zinc-700"
+          {hasMessages && (
+            <div className="px-4 pb-6 md:px-8">
+              {(listening || isSpeaking) && (
+                <div className="mb-3 flex justify-center">
+                  <VoiceOrb
+                    state={listening ? "listening" : isSpeaking ? "speaking" : "idle"}
                   />
-                  <button
-                    onClick={() => setPendingImage(null)}
-                    className="absolute -top-2 -right-2 rounded-full bg-zinc-800 p-0.5 text-white"
-                  >
-                    <X size={12} />
-                  </button>
                 </div>
               )}
 
-              <button
-                onClick={() => setVoiceEnabled((v) => !v)}
-                className="text-zinc-400 transition-colors hover:text-[#ff8e64]"
-                title={voiceEnabled ? "Mute voice output" : "Enable voice output"}
-              >
-                {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-              </button>
+              <div className="mx-auto flex max-w-5xl items-center gap-2 rounded-[20px] border border-[#8e2d28]/70 bg-[#101317]/90 px-4 py-2 shadow-[0_0_26px_rgba(0,0,0,0.38)] backdrop-blur-sm">
+                <button
+                  onClick={toggleListening}
+                  disabled={isClient ? !browserSupportsSpeechRecognition : true}
+                  className={`rounded-full p-2 transition-colors ${
+                    listening ? "text-[#ff8e64]" : "text-zinc-400 hover:text-[#ff8e64]"
+                  }`}
+                  title={
+                    isClient && browserSupportsSpeechRecognition
+                      ? "Voice input"
+                      : "Not supported in this browser"
+                  }
+                >
+                  <Mic size={18} />
+                </button>
 
-              <label className="cursor-pointer text-zinc-400 transition-colors hover:text-[#ff8e64]">
-                <Paperclip size={18} />
                 <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageSelect}
+                  className="flex-1 border-none bg-transparent text-sm text-white placeholder:text-zinc-500 outline-none"
+                  value={inputValue}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  placeholder="Type your prompt here"
+                  disabled={isStreaming}
                 />
-              </label>
 
-              <button
-                onClick={() => sendMessage()}
-                disabled={isStreaming}
-                className="rounded-full bg-gradient-to-r from-[#f36b46] to-[#8d1e1e] p-2 text-white shadow-[0_0_22px_rgba(125,27,27,0.6)] transition hover:brightness-110 disabled:opacity-40"
-              >
-                <ArrowUp size={16} />
-              </button>
+                {pendingImage && (
+                  <div className="relative w-fit">
+                    <Image
+                      src={pendingImage}
+                      alt="attached"
+                      width={200}
+                      height={200}
+                      className="h-16 rounded-lg border border-zinc-700"
+                    />
+                    <button
+                      onClick={() => setPendingImage(null)}
+                      className="absolute -top-2 -right-2 rounded-full bg-zinc-800 p-0.5 text-white"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setVoiceEnabled((v) => !v)}
+                  className="text-zinc-400 transition-colors hover:text-[#ff8e64]"
+                  title={voiceEnabled ? "Mute voice output" : "Enable voice output"}
+                >
+                  {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                </button>
+
+                <label className="cursor-pointer text-zinc-400 transition-colors hover:text-[#ff8e64]">
+                  <Paperclip size={18} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                </label>
+
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={isStreaming}
+                  className="rounded-full bg-gradient-to-r from-[#f36b46] to-[#7f1b1d] p-2 text-white shadow-[0_0_22px_rgba(125,27,27,0.6)] transition hover:brightness-110 disabled:opacity-40"
+                >
+                  <ArrowUp size={16} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
