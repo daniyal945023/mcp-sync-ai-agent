@@ -364,6 +364,56 @@ function normalizeVoiceTranscript(text: string): string {
                   and boost productivity in a sleek, modern workspace.
                 </p>
 
+
+                                 <div className="mb-8 grid w-full max-w-5xl grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {[
+                    {
+                      icon: FaGithub,
+                      title: "GitHub Issues",
+                      text: "List open issues or file a new one",
+                    },
+                    {
+                      icon: FaSlack,
+                      title: "Slack Updates",
+                      text: "Catch up on recent team messages",
+                    },
+                    {
+                      icon: SiNotion,
+                      title: "Notion Tracker",
+                      text: "See what’s logged and its status",
+                    },
+                    {
+                      icon: AlertTriangle,
+                      title: "Escalation Check",
+                      text: "Ask if something needs the team’s attention",
+                    },
+                  ].map(({ icon: Icon, title, text }, i) => (
+                    <button
+                      key={title}
+                      onClick={() =>
+                        sendMessage(
+                          i === 0
+                            ? "List my open GitHub issues"
+                            : i === 1
+                              ? "What are the recent messages in Slack?"
+                              : i === 2
+                                ? "Show me everything in the Notion tracker"
+                                : "A user says login is broken — what should I do?"
+                        )
+                      }
+                      className="group rounded-[18px] border border-[#8d2d28]/55 bg-[linear-gradient(180deg,rgba(38,13,15,0.88),rgba(17,20,24,0.92))] p-4 text-left shadow-[0_0_30px_rgba(116,21,19,0.16)] transition-all duration-200 hover:-translate-y-1 hover:border-[#d95f3a]/60 hover:shadow-[0_0_28px_rgba(216,82,52,0.18)]"
+                    >
+                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-[#ff9d6b]/30 bg-[radial-gradient(circle,_rgba(255,154,110,0.22),_rgba(101,18,18,0.12))] text-[#ff9d6b]">
+                        <Icon size={18} />
+                      </div>
+
+                      <div className="text-left text-base font-medium text-white">{title}</div>
+                      <div className="mt-1 text-left text-sm text-zinc-300">{text}</div>
+                    </button>
+                  ))}
+                </div>
+
+
                 <div className="relative w-full max-w-5xl">
                   <div className="pointer-events-none absolute left-1/2 top-[-40px] h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,130,87,0.95),_rgba(255,92,52,0.42)_25%,_transparent_68%)] blur-[46px]" />
 
