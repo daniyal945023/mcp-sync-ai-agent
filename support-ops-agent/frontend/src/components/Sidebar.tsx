@@ -52,10 +52,10 @@ export default function Sidebar({
   }, [getToken, refreshTrigger]);
 
 
-    const content = (
-    <div className="flex h-full w-64 flex-col bg-[radial-gradient(circle_at_top,_rgba(255,122,76,0.18),_transparent_26%),linear-gradient(180deg,#090b0f_0%,#0d0f14_42%,#0b0d12_100%)] p-4 text-zinc-300">
+      const content = (
+    <div className="flex h-full w-64 flex-col bg-[radial-gradient(circle_at_top,_rgba(255,122,76,0.18),_transparent_26%),linear-gradient(180deg,#0b090d_0%,#120d11_42%,#090b0e_100%)] p-4 text-zinc-300">
       <div className="mb-6 flex items-center justify-between">
-        <span className="cursor-default bg-gradient-to-r from-[#ff9a67] via-[#ff784d] to-[#ff5f35] bg-clip-text text-lg font-semibold tracking-tight text-transparent">
+        <span className="cursor-default bg-gradient-to-r from-[#ff9a67] via-[#e64a39] to-[#7d1b1b] bg-clip-text text-lg font-semibold tracking-tight text-transparent">
           Lumix AI
         </span>
         <button
@@ -68,7 +68,7 @@ export default function Sidebar({
 
       <button
         onClick={onNewChat}
-        className="mb-6 flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#ff8d5d] to-[#ff5b37] px-3 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(255,110,62,0.5)] transition hover:brightness-110"
+        className="mb-6 flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f36b46] to-[#8d1e1e] px-3 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(153,31,28,0.5)] transition hover:brightness-110"
       >
         <Plus size={16} />
         New Chat
