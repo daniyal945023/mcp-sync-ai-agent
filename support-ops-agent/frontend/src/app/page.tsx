@@ -355,13 +355,12 @@ function normalizeVoiceTranscript(text: string): string {
           <div className="flex-1 overflow-y-auto px-4 md:px-8">
             {!hasMessages ? (
               <div className="mx-auto flex h-full max-w-6xl flex-col items-center justify-center text-center">
-                <h1 className="mb-3 text-4xl font-semibold tracking-[-0.08em] text-white md:text-7xl">
-                  Experience the Next Era of AI Productivity.
-                </h1>
+                <h3 className="mb-3 text-4xl font-semibold tracking-[-0.08em] text-white md:text-7xl">
+                  How can I help you today?
+                </h3>
 
                 <p className="mb-8 max-w-2xl text-sm text-zinc-300 md:text-lg">
-                  Build smarter workflows effortlessly. Connect AI to automate tasks,
-                  and boost productivity in a sleek, modern workspace.
+                  Manage your Github issues,Slack activity, and Notion database, all in one place
                 </p>
 
 
