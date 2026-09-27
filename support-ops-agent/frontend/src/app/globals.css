@@ -50,6 +50,6 @@ input {
     filter: brightness(1);
   }
   50% {
-    filter: brightness(1.4);
+    filter: brightness(1.5);
   }
 }

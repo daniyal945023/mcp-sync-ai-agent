@@ -6,27 +6,46 @@ export default function VoiceOrb({
   state: "idle" | "listening" | "speaking";
 }) {
   const active = state !== "idle";
-  const color =
+
+  const glow =
     state === "listening"
-      ? "from-violet-500 via-fuchsia-400 to-violet-500"
-      : "from-violet-500 via-indigo-400 to-violet-500";
+      ? "from-[#ffaf7d] via-[#ea4d3a] to-[#6e1416]"
+      : "from-[#ffaf7d] via-[#e8513d] to-[#6e1416]";
 
   return (
-    <div className="relative w-20 h-20 flex items-center justify-center">
+    <div className="relative flex h-20 w-20 items-center justify-center">
       <div
-        className={`absolute inset-0 rounded-full bg-gradient-to-tr ${color} blur-xl transition-all duration-500`}
+        className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(255,149,98,0.52),_rgba(126,22,23,0.18)_32%,_transparent_72%)] blur-[18px]"
         style={{
-          opacity: active ? 0.9 : 0.35,
-          transform: active ? "scale(1.15)" : "scale(0.9)",
-          animation: active
-            ? "orb-spin 2.5s linear infinite, orb-pulse 1s ease-in-out infinite"
-            : "orb-spin 10s linear infinite",
+          opacity: active ? 1 : 0.42,
+          animation: active ? "orb-pulse 1.4s ease-in-out infinite" : "none",
         }}
       />
+
       <div
-        className="relative w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 transition-transform duration-300"
-        style={{ transform: active ? "scale(1.1)" : "scale(1)" }}
+        className={`absolute inset-0 rounded-full bg-gradient-to-tr ${glow} blur-xl`}
+        style={{
+          opacity: active ? 0.95 : 0.28,
+          transform: active ? "scale(1.18)" : "scale(0.86)",
+          animation: active
+            ? "orb-spin 3.4s linear infinite, orb-pulse 1.3s ease-in-out infinite"
+            : "orb-spin 12s linear infinite",
+          boxShadow: active
+            ? "0 0 26px rgba(161, 28, 25, 0.9), 0 0 52px rgba(255, 112, 68, 0.52)"
+            : "0 0 14px rgba(161, 28, 25, 0.35)",
+        }}
       />
+
+      <div className="absolute inset-[11px] rounded-full border border-white/15 bg-[#0d0d12]/85 backdrop-blur-sm" />
+
+      <div
+        className="relative h-10 w-10 rounded-full border border-[#ffd8bb]/60 bg-[radial-gradient(circle_at_30%_30%,_#ffd8ba,_#ff9a67_18%,_#e94d3c_42%,_#5a0b12_100%)] shadow-[0_0_18px_rgba(255,120,75,0.72)] transition-transform duration-300"
+        style={{
+          transform: active ? "scale(1.08)" : "scale(1)",
+        }}
+      />
+
+      <div className="absolute inset-0 rounded-full border border-[#ff9b76]/30" />
     </div>
   );
 }
