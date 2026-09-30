@@ -6,9 +6,9 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, HTTPException, Response, status
 
 try:
-    from .auth import get_current_user_id, create_demo_token
+    from .auth import get_current_user_id, create_demo_token, DEMO_TOKEN_TTL_SECONDS
 except ImportError:
-    from auth import get_current_user_id, create_demo_token
+    from auth import get_current_user_id, create_demo_token, DEMO_TOKEN_TTL_SECONDS
 
 import asyncpg
 from langchain_core.messages import HumanMessage, AIMessage
@@ -88,7 +88,7 @@ app.add_middleware(
 
 @app.post("/demo/session")
 async def create_demo_session():
-    from auth import DEMO_TOKEN_TTL_SECONDS
+    
     return {
         "access_token": create_demo_token(),
         "expires_in": DEMO_TOKEN_TTL_SECONDS,
