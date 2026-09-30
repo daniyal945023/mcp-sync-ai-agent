@@ -19,7 +19,7 @@ import { Paperclip, X } from "lucide-react";
 import Image from 'next/image'
 import { FaGithub, FaSlack } from 'react-icons/fa6';
 import { SiNotion } from 'react-icons/si';
-
+import { getApiToken } from "@/lib/apiAuth";
 
 
 type ToolEvent = { name: string; status: "running" | "done" };
@@ -56,16 +56,23 @@ const SUGGESTIONS = [
   },
 ];
 
-function getThreadId(): string {
-  const key = "ops-agent-thread-id";
-  let id = typeof window !== "undefined" ? localStorage.getItem(key) : null;
-  if (!id) {
-    id = crypto.randomUUID();
-    if (typeof window !== "undefined") localStorage.setItem(key, id);
-  }
-  return id;
+function getThreadStorageKey(): string {
+  return window.location.pathname === "/demo"
+    ? "ops-agent-demo-thread-id"
+    : "ops-agent-thread-id";
 }
 
+function getThreadId(): string {
+  const key = getThreadStorageKey();
+  let id = localStorage.getItem(key);
+
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+  }
+
+  return id;
+}
 
 const emptySubscribe = () => () => {};
 function useIsClient() {
@@ -82,7 +89,7 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeThreadId, setActiveThreadId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
-    const key = "ops-agent-thread-id";
+    const key = getThreadStorageKey();
     let id = localStorage.getItem(key);
     if (!id) {
       id = crypto.randomUUID();
@@ -145,16 +152,16 @@ const [pendingImage, setPendingImage] = useState<string | null>(null);
 
   function newChat() {
   const newId = crypto.randomUUID();
-  localStorage.setItem("ops-agent-thread-id", newId);
+  localStorage.setItem(getThreadStorageKey(), newId);
   setActiveThreadId(newId);
   setMessages([]);
 }
 
 async function selectThread(threadId: string) {
-  localStorage.setItem("ops-agent-thread-id", threadId);
+  localStorage.setItem(getThreadStorageKey(), threadId);
   setActiveThreadId(threadId);
 
-  const token = await getToken();
+  const token = await getApiToken(getToken)
   const res = await fetch(`${API_URL}/threads/${threadId}/messages`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -170,7 +177,7 @@ useEffect(() => {
 
   async function loadThreadHistory() {
     try {
-      const token = await getToken();
+      const token = await getApiToken(getToken)
       if (!token) return;
       const res = await fetch(`${API_URL}/threads/${activeThreadId}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -193,85 +200,140 @@ console.error("Failed to load thread history:", error);
 }, [activeThreadId, getToken]);
 
 
-  async function sendMessage(overrideText?: string) {
+ async function sendMessage(overrideText?: string) {
   const text = normalizeVoiceTranscript(overrideText ?? input);
   if (!text.trim() || isStreamingRef.current) return;
 
   isStreamingRef.current = true;
   setIsStreaming(true);
 
-  const userMessage: Message = { role: "user", content: text };
-  const assistantMessage: Message = { role: "assistant", content: "", tools: [] };
-  setMessages((prev) => [...prev, userMessage, assistantMessage]);
+  setMessages((prev) => [
+    ...prev,
+    { role: "user", content: text },
+    { role: "assistant", content: "", tools: [] },
+  ]);
   setInput("");
-  setIsStreaming(true);
 
-  const token = await getToken();
+  let fullAssistantText = "";
+  let receivedFinalMessage = false;
 
-  const response = await fetch(`${API_URL}/chat/stream`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-     },
-    body: JSON.stringify({ message: text, thread_id: threadIdRef.current, image: pendingImage }),
-  });
-  setPendingImage(null)
+  function updateAssistant(update: (message: Message) => Message) {
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.role !== "assistant") return prev;
 
-  const reader = response.body!.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let fullAssistantText = ""; // Track full content for TTS
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n\n");
-    buffer = lines.pop() || "";
-
-    for (const line of lines) {
-      if (!line.startsWith("data: ")) continue;
-      const event = JSON.parse(line.slice(6));
-      const content = normalizeContent(event.content); //new code
-
-      if (event.type === "token" || event.type === "final_message") {
-         fullAssistantText += content;
-        //fullAssistantText += event.content; // Accumulate text as it streams
-      }
-
-     setMessages((prev) => {
-  const last = prev[prev.length - 1];
-  let updatedLast = last;
-
-  if (event.type === "final_message") {
-    updatedLast = { ...last, content };  //content: event.content
-  } else if (event.type === "tool_start") {
-    updatedLast = {
-      ...last,
-      tools: [...(last.tools || []), { name: event.name, status: "running" }],
-    };
-  } else if (event.type === "tool_end") {
-    updatedLast = {
-      ...last,
-      tools: (last.tools || []).map((t) =>
-        t.name === event.name ? { ...t, status: "done" } : t
-      ),
-    };
+      return [...prev.slice(0, -1), update(last)];
+    });
   }
 
-  return [...prev.slice(0, -1), updatedLast];
-});
+  try {
+    const token = await getApiToken(getToken);
+    if (!token) {
+      throw new Error("No authentication token is available");
     }
-  }
 
-  isStreamingRef.current = false;
-  setIsStreaming(false);
-  setRefreshTrigger((n) => n + 1);
+    const response = await fetch(`${API_URL}/chat/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: text,
+        thread_id: threadIdRef.current,
+        image: pendingImage,
+      }),
+    });
 
-  // Speak only after stream ends
-  if (voiceEnabled && fullAssistantText.trim()) {
-    speak(fullAssistantText);
+    if (!response.ok) {
+      throw new Error(`Chat request failed with status ${response.status}`);
+    }
+    if (!response.body) {
+      throw new Error("Chat response did not include a stream");
+    }
+
+    setPendingImage(null);
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    function processBlock(block: string) {
+      const dataLine = block
+        .split(/\r?\n/)
+        .find((line) => line.startsWith("data: "));
+
+      if (!dataLine) return;
+
+      const event = JSON.parse(dataLine.slice(6)) as {
+        type?: string;
+        content?: unknown;
+        name?: string;
+      };
+
+      if (event.type === "final_message") {
+        const content = normalizeContent(event.content);
+        if (!content.trim()) return;
+
+        fullAssistantText = content;
+        receivedFinalMessage = true;
+        updateAssistant((message) => ({ ...message, content }));
+      } else if (event.type === "tool_start" && event.name) {
+        updateAssistant((message) => ({
+          ...message,
+          tools: [
+            ...(message.tools || []),
+            { name: event.name!, status: "running" },
+          ],
+        }));
+      } else if (event.type === "tool_end" && event.name) {
+        updateAssistant((message) => ({
+          ...message,
+          tools: (message.tools || []).map((tool) =>
+            tool.name === event.name ? { ...tool, status: "done" } : tool,
+          ),
+        }));
+      }
+    }
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const blocks = buffer.split(/\r?\n\r?\n/);
+      buffer = blocks.pop() ?? "";
+
+      for (const block of blocks) {
+        processBlock(block);
+      }
+    }
+
+    buffer += decoder.decode();
+    if (buffer.trim()) {
+      processBlock(buffer);
+    }
+
+    if (!receivedFinalMessage) {
+      throw new Error("The chat stream ended without an assistant response");
+    }
+
+    setRefreshTrigger((value) => value + 1);
+
+    if (voiceEnabled && fullAssistantText.trim()) {
+      speak(fullAssistantText);
+    }
+  } catch (error) {
+    console.error("Chat request failed:", error);
+
+    updateAssistant((message) => ({
+      ...message,
+      content:
+        "I couldn’t reach the support agent just now. Please check that the backend and MCP server are running, then try again.",
+    }));
+  } finally {
+    isStreamingRef.current = false;
+    setIsStreaming(false);
   }
 }
 
@@ -298,7 +360,7 @@ function normalizeContent(content: unknown): string {
 }
 
 async function deleteThread(threadId: string) {
-  const token = await getToken();
+  const token = await getApiToken(getToken)
   const res = await fetch(`${API_URL}/threads/${threadId}`, {
     method: "DELETE",
     headers: {

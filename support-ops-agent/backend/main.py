@@ -6,9 +6,9 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, HTTPException, Response, status
 
 try:
-    from .auth import get_current_user_id
+    from .auth import get_current_user_id, create_demo_token
 except ImportError:
-    from auth import get_current_user_id
+    from auth import get_current_user_id, create_demo_token
 
 import asyncpg
 from langchain_core.messages import HumanMessage, AIMessage
@@ -50,7 +50,7 @@ checkpointer = None
 
 @asynccontextmanager #prevents memory and connection leaks that occur from program crash
 async def lifespan(app: FastAPI):
-    global graph, checkpointer_cm, checkpointer, db_pool
+    global graph, demo_graph, checkpointer_cm, checkpointer, db_pool
     #global checkpointer is new
     checkpointer_cm = AsyncPostgresSaver.from_conn_string(DATABASE_URL)
     checkpointer = await checkpointer_cm.__aenter__()
@@ -85,6 +85,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/demo/session")
+async def create_demo_session():
+    from auth import DEMO_TOKEN_TTL_SECONDS
+    return {
+        "access_token": create_demo_token(),
+        "expires_in": DEMO_TOKEN_TTL_SECONDS,
+    }
 
 class ChatRequest(BaseModel):
     message: str

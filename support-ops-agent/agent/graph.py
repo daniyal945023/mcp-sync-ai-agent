@@ -23,6 +23,7 @@ env_path = parent_dir / ".env"
 
 load_dotenv(dotenv_path=env_path)
 
+
 GITHUB_TOOLS = {"list_open_issues", "create_issue"}
 COMMS_TOOLS = {"post_slack_message", "read_slack_messages", "query_notion_tickets", "create_notion_ticket"}
 

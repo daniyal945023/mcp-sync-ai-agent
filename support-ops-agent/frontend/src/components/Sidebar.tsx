@@ -6,6 +6,7 @@ const API_URL =
 import { useState, useEffect, useCallback } from "react";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Plus, MessageSquare, Menu, X, Trash2 } from "lucide-react";
+import { getApiToken } from "@/lib/apiAuth";
 
 type Thread = { thread_id: string; title: string; created_at: string };
 
@@ -24,7 +25,7 @@ export default function Sidebar({
 }) {
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState<Thread[]>([]);
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
 
 
   useEffect(() => {
@@ -32,7 +33,8 @@ export default function Sidebar({
 
     async function loadThreads() {
       try {
-        const token = await getToken();
+        const token = await getApiToken(getToken)
+        if (!token) return;
         const res = await fetch(`${API_URL}/threads`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -56,7 +58,7 @@ export default function Sidebar({
     <div className="flex h-full w-64 flex-col bg-[radial-gradient(circle_at_top,_rgba(255,122,76,0.18),_transparent_26%),linear-gradient(180deg,#0b090d_0%,#120d11_42%,#090b0e_100%)] p-4 text-zinc-300">
       <div className="mb-6 flex items-center justify-between">
         <span className="cursor-default bg-gradient-to-r from-[#ff9a67] via-[#d94d3d] to-[#701a1a] bg-clip-text text-lg font-semibold tracking-tight text-transparent">
-          Lumix AI
+          ProjectManagerAI
         </span>
         <button
           className="text-zinc-400 transition-colors hover:text-white md:hidden"
@@ -122,7 +124,7 @@ export default function Sidebar({
       </div>
 
       <div className="mt-auto border-t border-white/10 pt-4">
-        <UserButton />
+        {isSignedIn ? <UserButton /> : <span className="text-xs text-zinc-500">Demo session</span>}
       </div>
     </div>
   );
