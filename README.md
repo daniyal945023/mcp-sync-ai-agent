@@ -119,12 +119,11 @@ This project is under active development toward a production-grade deployment. C
 
 - [x] Core multi-agent functionality
 - [x] Authentication & per-user chat history
-- [ ] Docker containerization
-- [ ] CI/CD (GitHub Actions)
-- [ ] Rate limiting & concurrent-user handling (Redis)
-- [ ] Automated tests
-- [ ] Live deployment
-- [ ] Per-user OAuth (currently uses shared service credentials — see note below)
+- [x] Docker containerization
+- [x] CI/CD (GitHub Actions)
+- [x] Automated tests
+- [x] Live deployment
+
 
 **Note on integrations**: this demo currently uses a single set of shared GitHub/Slack/Notion credentials (pointed at a single account) rather than per-user OAuth. Per-user OAuth is a planned future milestone.
 
@@ -143,9 +142,7 @@ consequently learned what to do and what not to do:
 - Fixed placeholder-substitution bug (model was echoing literal <issue_number> instead of using real tool-call results — fixed via explicit "never output placeholder text" instruction in both the runbook resource and system prompt).
 
 
-Just to add, I am still working on this project, fixing and enhancing its UI and more importantly, hardening the infrastructure layer to make it as production ready and error free as possible in $0, which means that ofcourse I would be exclusively using free tiers of LLM, which would be a major limitation in production.
-
-Furthermore, since this was a comprehensive project, I utilized spec-driven development and AI-assisted coding. I used AI in a read-only 'ask' mode to suggest code based on the codebase, which I manually reviewed and integrated, rather than letting an autonomous agent execute changes directly. You may see separate .md files for progress tracking, specs, and so on.
+Just to add,  I exclusively used free tiers of LLM, which would be a major limitation in production. Furthermore, since this was a comprehensive project, I utilized spec-driven development and AI-assisted coding. I used AI in a read-only 'ask' mode to suggest code based on the codebase, which I manually reviewed and integrated, rather than letting an autonomous agent execute changes directly. You may see separate .md files for progress tracking, specs, and so on.
 
 ## Deployment Challenges
 
@@ -165,8 +162,21 @@ Furthermore, since this was a comprehensive project, I utilized spec-driven deve
 - **CORS & Environment Dynamic Mapping:** Replaced hardcoded `localhost` calls on Vercel with `NEXT_PUBLIC_API_URL` and ensured `FRONTEND_URL` in backend CORS configuration included full explicit protocols (`https://`).
 - **Auth Alignment:** Synchronized Clerk production keys across Vercel (Publishable) and Render (Secret), configuring `authorized_parties` to allow deployment domain requests.
 
-### Future Improvements
-- **Tenant Isolation:** Transitioning from global integration keys (GitHub, Slack, Notion) to user-owned OAuth connections.
+## Deployment and Demo Link
+
+Demo Link: https://mcp-sync-ai-agent.vercel.app/demo
+The project is available for live demo between 8 to 10 pm Pakistan Time. In case you are visiting outside these hours, follow the instructions below.
+
+### Demo outside scheduled hours
+
+The Render free-tier services may be asleep outside the scheduled demo window. To wake them before using the demo, Strictly follow this order:
+
+1. Open the [MCP health URL](https://support-ops-agent-mcp.onrender.com/health) and wait for a JSON response with `"status": "ok"`.
+2. Open the [backend health URL](https://support-ops-agent-backend.onrender.com/health) and wait for a JSON response with `"status": "ok"`.
+3. Open the [live demo](https://mcp-sync-ai-agent.vercel.app/demo).
+
+The first request may take a minute while Render starts the services. If a health URL does not return successfully, wait briefly and retry it before continuing.
+
 
 ## Connect
 
