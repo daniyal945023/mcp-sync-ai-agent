@@ -1,0 +1,61 @@
+name: Keep Render demo awake
+
+on:
+  schedule:
+    # Wake the services ten minutes before the demo window.
+    - cron: "50 19 * * *"
+      timezone: "Asia/Karachi"
+
+    # Check both services every ten minutes during 8-10 PM.
+    - cron: "3,13,23,33,43,53 20-21 * * *"
+      timezone: "Asia/Karachi"
+
+  # Lets you warm the services manually before an interview or demo.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wake-services:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Wait for MCP, then backend
+        shell: bash
+        env:
+          MCP_HEALTH_URL: ${{ vars.MCP_HEALTH_URL }}
+          BACKEND_HEALTH_URL: ${{ vars.BACKEND_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+
+          wait_for_health() {
+            local name="$1"
+            local url="$2"
+            local deadline=$((SECONDS + 360))
+
+            if [[ -z "$url" ]]; then
+              echo "::error::$name health URL is empty. Check the repository Actions variables."
+              return 1
+            fi
+
+            echo "Waiting for $name at $url"
+
+            while (( SECONDS < deadline )); do
+              if curl --fail --silent --show-error --max-time 20 "$url"; then
+                echo
+                echo "$name is healthy."
+                return 0
+              fi
+
+              echo "$name is still starting; retrying in 10 seconds."
+              sleep 10
+            done
+
+            echo "::error::$name did not become healthy within six minutes."
+            return 1
+          }
+
+          wait_for_health "MCP" "$MCP_HEALTH_URL"
+          wait_for_health "Backend" "$BACKEND_HEALTH_URL"
