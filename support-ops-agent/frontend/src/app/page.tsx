@@ -4,7 +4,7 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 import { useState, useRef, useEffect } from "react";
-import { Mic, ArrowUp, FileStack, AlertTriangle, MessagesSquare } from "lucide-react";
+import { Mic, ArrowUp, FileStack, AlertTriangle, MessagesSquare, LogIn } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import Sidebar from "@/components/Sidebar";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
@@ -20,6 +20,8 @@ import Image from 'next/image'
 import { FaGithub, FaSlack } from 'react-icons/fa6';
 import { SiNotion } from 'react-icons/si';
 import { getApiToken } from "@/lib/apiAuth";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 
 type ToolEvent = { name: string; status: "running" | "done" };
@@ -84,6 +86,9 @@ function useIsClient() {
 }
 
 export default function ChatPage() {
+    const pathname = usePathname();
+  const isDemo = pathname === "/demo";
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -414,6 +419,31 @@ function normalizeVoiceTranscript(text: string): string {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(164,35,31,0.30),_transparent_30%),radial-gradient(circle_at_50%_10%,_rgba(255,92,56,0.16),_transparent_18%)]" />
 
         <div className="relative z-10 flex h-full flex-col">
+
+
+          {isDemo && (
+            <aside
+              aria-label="Demo availability and sign in"
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-white/10 bg-[#0d1014]/95 px-4 py-3 md:px-8"
+            >
+              <p className="min-w-0 text-left text-xs leading-relaxed text-zinc-300 sm:text-sm">
+                <span className="font-semibold text-[#ffb08f]">Demo hours:</span>{" "}
+                Daily, 8:00-10:00 PM Pakistan time (PKT). Outside this window,
+                the free-tier services may take time to wake, so agent replies
+                can be delayed.
+              </p>
+
+              <Link
+                href="/sign-in"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-[#ff9d6b]/50 px-4 py-2 text-sm font-medium text-[#ffb08f] transition-colors hover:border-[#ff9d6b] hover:bg-[#ff9d6b]/10 hover:text-white"
+              >
+                <LogIn size={16} aria-hidden="true" />
+                Sign in
+              </Link>
+            </aside>
+          )}
+
+
           <div className="flex-1 overflow-y-auto px-4 md:px-8">
             {!hasMessages ? (
               <div className="mx-auto flex h-full max-w-6xl flex-col items-center justify-center text-center">
