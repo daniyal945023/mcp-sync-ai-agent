@@ -4,8 +4,13 @@ import tools_slack as slack
 import tools_notion as notion
 from fastmcp.prompts import Message
 import os
+from starlette.responses import JSONResponse
 
 mcp = FastMCP("Server Ops MCP")
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    return JSONResponse({"status": "ok", "service": "mcp-server"})
 
 @mcp.tool()
 def list_open_issues(limit: int | str = 10) -> list[dict] | dict:
